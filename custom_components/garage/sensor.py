@@ -46,7 +46,6 @@ async def async_setup_entry(
             GarageDueRemindersSensor(data.reminders_coordinator, entry),
             GarageLastPushAtSensor(data.forwarder, entry),
             GarageLastPushOkSensor(data.forwarder, entry),
-            GarageSkippedNotInVehicleSensor(data.forwarder, entry),
         ]
     )
 
@@ -113,7 +112,11 @@ class GarageSpeedSensor(GarageStatusSensor):
 class GarageDueRemindersSensor(
     CoordinatorEntity[GarageRemindersCoordinator], SensorEntity
 ):
-    """Count of maintenance/admin reminders that are currently due."""
+    """Count of maintenance/admin reminders that are due or upcoming.
+
+    Garage 대시보드의 "지난 N건 임박 N건" 배지와 같은 기준(``isDue`` 또는
+    ``isUpcoming``)으로 집계해야 웹 화면에 보이는 건수와 이 센서 값이 일치한다.
+    """
 
     _attr_has_entity_name = True
     _attr_translation_key = "due_reminders"
@@ -129,15 +132,22 @@ class GarageDueRemindersSensor(
 
     @property
     def native_value(self) -> int:
-        reminders = self.coordinator.data or []
-        return sum(1 for reminder in reminders if reminder.get("isDue"))
+        return len(self._needs_attention)
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         reminders = self.coordinator.data or []
         return {
+            "due_count": sum(1 for r in reminders if r.get("isDue")),
+            "upcoming_count": sum(1 for r in reminders if r.get("isUpcoming")),
             "due_types": [r.get("type") for r in reminders if r.get("isDue")],
+            "upcoming_types": [r.get("type") for r in reminders if r.get("isUpcoming")],
         }
+
+    @property
+    def _needs_attention(self) -> list[dict[str, Any]]:
+        reminders = self.coordinator.data or []
+        return [r for r in reminders if r.get("isDue") or r.get("isUpcoming")]
 
 
 class GarageLastPushAtSensor(SensorEntity):
@@ -199,37 +209,6 @@ class GarageLastPushOkSensor(SensorEntity):
     @property
     def icon(self) -> str:
         return "mdi:check-circle" if self._forwarder.last_push_ok else "mdi:alert-circle"
-
-    @property
-    def available(self) -> bool:
-        return bool(self._forwarder.entity_ids)
-
-
-class GarageSkippedNotInVehicleSensor(SensorEntity):
-    """Whether the most recent change was skipped by "주행 중일 때만 전송" (diagnostic)."""
-
-    _attr_has_entity_name = True
-    _attr_translation_key = "last_skipped_not_in_vehicle"
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_device_class = SensorDeviceClass.ENUM
-    _attr_options: ClassVar[list[str]] = ["skipped", "sent"]
-    _attr_icon = "mdi:car-off"
-    _attr_should_poll = False
-
-    def __init__(self, forwarder: GarageTelemetryForwarder, entry: ConfigEntry) -> None:
-        self._forwarder = forwarder
-        self._attr_unique_id = f"{entry.entry_id}_last_skipped_not_in_vehicle"
-        self._attr_device_info = _device_info(entry)
-
-    async def async_added_to_hass(self) -> None:
-        """Register listener for forwarder updates."""
-        self.async_on_remove(
-            self._forwarder.async_add_listener(self.async_write_ha_state)
-        )
-
-    @property
-    def native_value(self) -> str:
-        return "skipped" if self._forwarder.last_skipped_not_in_vehicle else "sent"
 
     @property
     def available(self) -> bool:

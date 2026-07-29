@@ -9,35 +9,23 @@ CONF_HOST = "host"
 CONF_API_TOKEN = "api_token"
 
 # Options keys — HA entities to forward to Garage as telemetry (all optional).
-CONF_ENTITY_LATITUDE = "entity_latitude"
-CONF_ENTITY_LONGITUDE = "entity_longitude"
-CONF_ENTITY_SPEED = "entity_speed"
+# 위치는 device_tracker 하나로만 받는다 — 위경도를 함께 들고 있는 표준 HA 엔티티라
+# 위도/경도를 따로 고를 필요가 없다.
+CONF_ENTITY_LOCATION = "entity_location"
 CONF_ENTITY_RPM = "entity_rpm"
-CONF_ENTITY_FUEL_LEVEL = "entity_fuel_level"
-CONF_ENTITY_ODOMETER = "entity_odometer"
-CONF_ENTITY_IN_VEHICLE = "entity_in_vehicle"
 
 FORWARD_ENTITY_KEYS: tuple[str, ...] = (
-    CONF_ENTITY_LATITUDE,
-    CONF_ENTITY_LONGITUDE,
-    CONF_ENTITY_SPEED,
+    CONF_ENTITY_LOCATION,
     CONF_ENTITY_RPM,
-    CONF_ENTITY_FUEL_LEVEL,
-    CONF_ENTITY_ODOMETER,
-    CONF_ENTITY_IN_VEHICLE,
 )
 
-# 켜면 entity_in_vehicle이 True일 때만 전송하고, False/판단 불가일 때는 건너뛴다.
-# entity_in_vehicle을 아예 지정하지 않았다면 판단 기준이 없으므로 이 옵션과 무관하게
-# 항상 전송한다.
-CONF_ONLY_WHEN_IN_VEHICLE = "only_when_in_vehicle"
+# 전송 트리거(상태 변화 감시 대상)에서는 제외하는 필드 — 위치는 주행 중 계속 바뀌므로
+# 이걸 트리거로 삼으면 사실상 끊임없이 전송하게 된다. 위치가 아닌 값(RPM 등)이 바뀔 때만
+# 전송을 트리거하고, 전송 시점의 최신 위치를 함께 실어 보낸다.
+TRIGGER_EXCLUDED_KEYS: tuple[str, ...] = (CONF_ENTITY_LOCATION,)
 
-# entity_in_vehicle 에 binary_sensor/device_tracker 대신 숫자 sensor(예: 엔진로드, RPM)를
-# 골랐을 때 "탑승중"으로 판단하는 기준값 — 이 값보다 크면 True.
-IN_VEHICLE_NUMERIC_THRESHOLD = 0
-
-# Garage 서버가 값이 바뀔 때마다 push 받지만, 같은 틱에 여러 엔티티가 연달아
-# 바뀌는 경우까지 매번 요청하지 않도록 최소 간격을 둔다.
+# Garage 서버로 push하되, 같은 틱에 여러 엔티티가 연달아 바뀌는 경우까지 매번
+# 요청하지 않도록 최소 간격을 둔다.
 MIN_PUSH_INTERVAL_SECONDS = 10
 
 # GET /api/ingest/status, /api/ingest/reminders 폴링 주기 — Garage가 자체적으로

@@ -13,14 +13,8 @@
         "title": "전송할 센서 선택",
         "description": "Garage로 전송할 HA 엔티티를 선택하세요. 전부 선택 사항이며, 비워두면 나중에 옵션에서 설정할 수 있습니다.",
         "data": {
-          "entity_latitude": "위도 센서 (또는 device_tracker)",
-          "entity_longitude": "경도 센서 (또는 device_tracker)",
-          "entity_speed": "속도 센서",
-          "entity_rpm": "엔진 회전수(RPM) 센서",
-          "entity_fuel_level": "연료/배터리 잔량 센서",
-          "entity_odometer": "주행거리 센서",
-          "entity_in_vehicle": "차량 주행/탑승 여부 — binary_sensor/device_tracker 또는 엔진로드·RPM 등 숫자 센서(0보다 크면 주행 중으로 판단)",
-          "only_when_in_vehicle": "주행 중일 때만 전송 — 켜면 위 \"차량 주행/탑승 여부\" 센서가 참(주행 중)일 때만 데이터를 보내고, 시동이 꺼졌거나 주행 중이 아니면 건너뜁니다."
+          "entity_location": "위치(device_tracker) — 위도/경도를 함께 갖고 있는 엔티티 하나만 고르면 됩니다",
+          "entity_rpm": "엔진 회전수(RPM) 센서"
         }
       },
       "reauth_confirm": {
@@ -45,16 +39,10 @@
     "step": {
       "init": {
         "title": "전송할 센서 선택",
-        "description": "여기서 고른 HA 엔티티의 값이 바뀔 때마다 자동으로 Garage에 전송됩니다. 전부 선택 사항이며, 비워두면 해당 항목은 보내지 않습니다.",
+        "description": "위치가 아닌 값(RPM 등)이 바뀔 때만 전송을 트리거하고, 그 시점의 최신 위치를 함께 실어 보냅니다. 전부 선택 사항이며, 비워두면 해당 항목은 보내지 않습니다.",
         "data": {
-          "entity_latitude": "위도 센서 (또는 device_tracker)",
-          "entity_longitude": "경도 센서 (또는 device_tracker)",
-          "entity_speed": "속도 센서",
-          "entity_rpm": "엔진 회전수(RPM) 센서",
-          "entity_fuel_level": "연료/배터리 잔량 센서",
-          "entity_odometer": "주행거리 센서",
-          "entity_in_vehicle": "차량 주행/탑승 여부 — binary_sensor/device_tracker 또는 엔진로드·RPM 등 숫자 센서(0보다 크면 주행 중으로 판단)",
-          "only_when_in_vehicle": "주행 중일 때만 전송 — 켜면 위 \"차량 주행/탑승 여부\" 센서가 참(주행 중)일 때만 데이터를 보내고, 시동이 꺼졌거나 주행 중이 아니면 건너뜁니다."
+          "entity_location": "위치(device_tracker) — 위도/경도를 함께 갖고 있는 엔티티 하나만 고르면 됩니다",
+          "entity_rpm": "엔진 회전수(RPM) 센서"
         }
       }
     }
@@ -71,7 +59,7 @@
         "name": "속도"
       },
       "due_reminders": {
-        "name": "기한 도래 리마인더"
+        "name": "지난·임박 리마인더"
       },
       "last_push_at": {
         "name": "마지막 전송 시각"
@@ -81,13 +69,6 @@
         "state": {
           "ok": "성공",
           "error": "실패"
-        }
-      },
-      "last_skipped_not_in_vehicle": {
-        "name": "주행 필터 전송 상태",
-        "state": {
-          "skipped": "주행 중 아님 (전송 안 함)",
-          "sent": "주행 중 (전송됨)"
         }
       }
     },

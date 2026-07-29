@@ -14,24 +14,14 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.selector import (
-    BooleanSelector,
-    EntitySelector,
-    EntitySelectorConfig,
-)
+from homeassistant.helpers.selector import EntitySelector, EntitySelectorConfig
 
 from .api import GarageApi, GarageAuthError, GarageConnectionError, GarageError
 from .const import (
     CONF_API_TOKEN,
-    CONF_ENTITY_FUEL_LEVEL,
-    CONF_ENTITY_IN_VEHICLE,
-    CONF_ENTITY_LATITUDE,
-    CONF_ENTITY_LONGITUDE,
-    CONF_ENTITY_ODOMETER,
+    CONF_ENTITY_LOCATION,
     CONF_ENTITY_RPM,
-    CONF_ENTITY_SPEED,
     CONF_HOST,
-    CONF_ONLY_WHEN_IN_VEHICLE,
     DOMAIN,
 )
 
@@ -151,51 +141,25 @@ class GarageConfigFlow(ConfigFlow, domain=DOMAIN):
 
 
 def _sensor_options_schema(current: dict[str, Any] | None = None) -> vol.Schema:
-    """Build entity selector schema for sensor mapping."""
+    """Build entity selector schema for sensor mapping.
+
+    위치는 device_tracker 하나로만 받는다 — HA의 device_tracker는 이미
+    latitude/longitude를 속성으로 들고 있는 표준 "위치" 엔티티라, 위도/경도를 각각
+    고를 필요가 없다(plain sensor는 위경도 두 값을 동시에 담을 수 없어 애초에
+    이 용도에 맞지 않는다).
+    """
     if current is None:
         current = {}
     return vol.Schema(
         {
             vol.Optional(
-                CONF_ENTITY_LATITUDE,
-                default=current.get(CONF_ENTITY_LATITUDE, ""),
-            ): EntitySelector(
-                EntitySelectorConfig(domain=["sensor", "device_tracker"])
-            ),
-            vol.Optional(
-                CONF_ENTITY_LONGITUDE,
-                default=current.get(CONF_ENTITY_LONGITUDE, ""),
-            ): EntitySelector(
-                EntitySelectorConfig(domain=["sensor", "device_tracker"])
-            ),
-            vol.Optional(
-                CONF_ENTITY_SPEED,
-                default=current.get(CONF_ENTITY_SPEED, ""),
-            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
+                CONF_ENTITY_LOCATION,
+                default=current.get(CONF_ENTITY_LOCATION, ""),
+            ): EntitySelector(EntitySelectorConfig(domain="device_tracker")),
             vol.Optional(
                 CONF_ENTITY_RPM,
                 default=current.get(CONF_ENTITY_RPM, ""),
             ): EntitySelector(EntitySelectorConfig(domain="sensor")),
-            vol.Optional(
-                CONF_ENTITY_FUEL_LEVEL,
-                default=current.get(CONF_ENTITY_FUEL_LEVEL, ""),
-            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
-            vol.Optional(
-                CONF_ENTITY_ODOMETER,
-                default=current.get(CONF_ENTITY_ODOMETER, ""),
-            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
-            vol.Optional(
-                CONF_ENTITY_IN_VEHICLE,
-                default=current.get(CONF_ENTITY_IN_VEHICLE, ""),
-            ): EntitySelector(
-                EntitySelectorConfig(
-                    domain=["binary_sensor", "device_tracker", "sensor"]
-                )
-            ),
-            vol.Optional(
-                CONF_ONLY_WHEN_IN_VEHICLE,
-                default=current.get(CONF_ONLY_WHEN_IN_VEHICLE, False),
-            ): BooleanSelector(),
         }
     )
 
@@ -219,4 +183,3 @@ class GarageOptionsFlow(OptionsFlow):
         return self.async_show_form(
             step_id="init", data_schema=_sensor_options_schema(current)
         )
-

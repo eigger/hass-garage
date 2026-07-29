@@ -5,13 +5,9 @@ import asyncio
 from custom_components.garage import GarageTelemetryForwarder, _to_float
 from custom_components.garage.api import GarageError
 from custom_components.garage.const import (
-    CONF_ENTITY_FUEL_LEVEL,
-    CONF_ENTITY_IN_VEHICLE,
-    CONF_ENTITY_LATITUDE,
-    CONF_ENTITY_LONGITUDE,
-    CONF_ENTITY_ODOMETER,
+    CONF_ENTITY_LOCATION,
     CONF_ENTITY_RPM,
-    CONF_ENTITY_SPEED,
+    MIN_PUSH_INTERVAL_SECONDS,
 )
 
 
@@ -60,18 +56,11 @@ class TestToFloat:
         assert _to_float("inf") is None
 
 
-class TestReadCoordinate:
-    def test_plain_sensor_state(self):
-        hass = FakeHass({"sensor.lat": FakeState("37.5665")})
-        forwarder = GarageTelemetryForwarder(
-            hass, api=None, entity_map={CONF_ENTITY_LATITUDE: "sensor.lat"}
-        )
-        assert forwarder._read_coordinate(CONF_ENTITY_LATITUDE, "latitude") == 37.5665
-
-    def test_device_tracker_reads_attribute_not_state(self):
+class TestReadLocation:
+    def test_device_tracker_reads_lat_lon_attributes(self):
         hass = FakeHass(
             {
-                "device_tracker.phone": FakeState(
+                "device_tracker.car": FakeState(
                     "home",
                     domain="device_tracker",
                     attributes={"latitude": 37.1, "longitude": 127.2},
@@ -79,125 +68,57 @@ class TestReadCoordinate:
             }
         )
         forwarder = GarageTelemetryForwarder(
-            hass,
+            hass, api=None, entity_map={CONF_ENTITY_LOCATION: "device_tracker.car"}
+        )
+        assert forwarder._read_location() == (37.1, 127.2)
+
+    def test_unconfigured_returns_none_none(self):
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map={})
+        assert forwarder._read_location() == (None, None)
+
+    def test_entity_removed_from_ha_returns_none_none(self):
+        forwarder = GarageTelemetryForwarder(
+            FakeHass({}),
             api=None,
-            entity_map={
-                CONF_ENTITY_LATITUDE: "device_tracker.phone",
-                CONF_ENTITY_LONGITUDE: "device_tracker.phone",
-            },
+            entity_map={CONF_ENTITY_LOCATION: "device_tracker.gone"},
         )
-        assert forwarder._read_coordinate(CONF_ENTITY_LATITUDE, "latitude") == 37.1
-        assert forwarder._read_coordinate(CONF_ENTITY_LONGITUDE, "longitude") == 127.2
+        assert forwarder._read_location() == (None, None)
 
-    def test_unconfigured_field_returns_none(self):
-        forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map={})
-        assert forwarder._read_coordinate(CONF_ENTITY_LATITUDE, "latitude") is None
-
-    def test_entity_removed_from_ha_returns_none(self):
-        forwarder = GarageTelemetryForwarder(
-            FakeHass({}), api=None, entity_map={CONF_ENTITY_LATITUDE: "sensor.gone"}
-        )
-        assert forwarder._read_coordinate(CONF_ENTITY_LATITUDE, "latitude") is None
-
-
-class TestReadBool:
-    """탑승 여부(inVehicle) 판단 — binary_sensor/device_tracker/숫자 sensor 세 갈래."""
-
-    def test_binary_sensor_on(self):
-        hass = FakeHass({"binary_sensor.bt": FakeState("on", domain="binary_sensor")})
-        forwarder = GarageTelemetryForwarder(
-            hass, api=None, entity_map={CONF_ENTITY_IN_VEHICLE: "binary_sensor.bt"}
-        )
-        assert forwarder._read_bool(CONF_ENTITY_IN_VEHICLE) is True
-
-    def test_binary_sensor_off(self):
-        hass = FakeHass({"binary_sensor.bt": FakeState("off", domain="binary_sensor")})
-        forwarder = GarageTelemetryForwarder(
-            hass, api=None, entity_map={CONF_ENTITY_IN_VEHICLE: "binary_sensor.bt"}
-        )
-        assert forwarder._read_bool(CONF_ENTITY_IN_VEHICLE) is False
-
-    def test_device_tracker_home_is_true(self):
-        hass = FakeHass({"device_tracker.car": FakeState("home", domain="device_tracker")})
-        forwarder = GarageTelemetryForwarder(
-            hass, api=None, entity_map={CONF_ENTITY_IN_VEHICLE: "device_tracker.car"}
-        )
-        assert forwarder._read_bool(CONF_ENTITY_IN_VEHICLE) is True
-
-    def test_device_tracker_not_home_is_false(self):
+    def test_missing_attribute_returns_none_for_that_axis(self):
         hass = FakeHass(
-            {"device_tracker.car": FakeState("not_home", domain="device_tracker")}
+            {
+                "device_tracker.car": FakeState(
+                    "home", domain="device_tracker", attributes={"latitude": 37.1}
+                )
+            }
         )
         forwarder = GarageTelemetryForwarder(
-            hass, api=None, entity_map={CONF_ENTITY_IN_VEHICLE: "device_tracker.car"}
+            hass, api=None, entity_map={CONF_ENTITY_LOCATION: "device_tracker.car"}
         )
-        assert forwarder._read_bool(CONF_ENTITY_IN_VEHICLE) is False
-
-    def test_numeric_sensor_above_zero_is_true(self):
-        """실사용 사례: 엔진로드/RPM 센서로 탑승 여부를 판단."""
-        hass = FakeHass({"sensor.engine_load": FakeState("23.5")})
-        forwarder = GarageTelemetryForwarder(
-            hass, api=None, entity_map={CONF_ENTITY_IN_VEHICLE: "sensor.engine_load"}
-        )
-        assert forwarder._read_bool(CONF_ENTITY_IN_VEHICLE) is True
-
-    def test_numeric_sensor_zero_is_false(self):
-        hass = FakeHass({"sensor.engine_load": FakeState("0")})
-        forwarder = GarageTelemetryForwarder(
-            hass, api=None, entity_map={CONF_ENTITY_IN_VEHICLE: "sensor.engine_load"}
-        )
-        assert forwarder._read_bool(CONF_ENTITY_IN_VEHICLE) is False
-
-    def test_unavailable_state_returns_none(self):
-        hass = FakeHass({"sensor.engine_load": FakeState("unavailable")})
-        forwarder = GarageTelemetryForwarder(
-            hass, api=None, entity_map={CONF_ENTITY_IN_VEHICLE: "sensor.engine_load"}
-        )
-        assert forwarder._read_bool(CONF_ENTITY_IN_VEHICLE) is None
-
-    def test_unconfigured_returns_none(self):
-        forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map={})
-        assert forwarder._read_bool(CONF_ENTITY_IN_VEHICLE) is None
+        assert forwarder._read_location() == (37.1, None)
 
 
 class TestGatherPayload:
     def test_full_mapping_produces_full_payload(self):
         hass = FakeHass(
             {
-                "device_tracker.phone": FakeState(
+                "device_tracker.car": FakeState(
                     "home",
                     domain="device_tracker",
                     attributes={"latitude": 37.1, "longitude": 127.2},
                 ),
-                "sensor.speed": FakeState("42.3"),
                 "sensor.rpm": FakeState("1800"),
-                "sensor.fuel": FakeState("55"),
-                "sensor.odo": FakeState("12345.6"),
-                "sensor.engine_load": FakeState("18"),
             }
         )
         entity_map = {
-            CONF_ENTITY_LATITUDE: "device_tracker.phone",
-            CONF_ENTITY_LONGITUDE: "device_tracker.phone",
-            CONF_ENTITY_SPEED: "sensor.speed",
+            CONF_ENTITY_LOCATION: "device_tracker.car",
             CONF_ENTITY_RPM: "sensor.rpm",
-            CONF_ENTITY_FUEL_LEVEL: "sensor.fuel",
-            CONF_ENTITY_ODOMETER: "sensor.odo",
-            CONF_ENTITY_IN_VEHICLE: "sensor.engine_load",
         }
         forwarder = GarageTelemetryForwarder(hass, api=None, entity_map=entity_map)
 
         payload = forwarder._gather_payload()
 
-        assert payload == {
-            "lat": 37.1,
-            "lon": 127.2,
-            "speed": 42.3,
-            "rpm": 1800.0,
-            "fuelLevel": 55.0,
-            "odometer": 12345,
-            "inVehicle": True,
-        }
+        assert payload == {"lat": 37.1, "lon": 127.2, "rpm": 1800.0}
 
     def test_empty_mapping_produces_all_none(self):
         forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map={})
@@ -208,28 +129,56 @@ class TestGatherPayload:
 class TestEntityIds:
     def test_dedupes_entity_shared_across_fields(self):
         entity_map = {
-            CONF_ENTITY_LATITUDE: "device_tracker.phone",
-            CONF_ENTITY_LONGITUDE: "device_tracker.phone",
+            CONF_ENTITY_LOCATION: "device_tracker.car",
+            CONF_ENTITY_RPM: "device_tracker.car",
         }
         forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map=entity_map)
-        assert forwarder.entity_ids == ["device_tracker.phone"]
+        assert forwarder.entity_ids == ["device_tracker.car"]
 
     def test_empty_when_no_fields_configured(self):
         forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map={})
         assert forwarder.entity_ids == []
 
 
+class TestTriggerEntityIds:
+    """위치는 전송 트리거에서 제외되고, 나머지 값이 바뀔 때만 전송을 트리거한다."""
+
+    def test_location_excluded_from_trigger(self):
+        entity_map = {
+            CONF_ENTITY_LOCATION: "device_tracker.car",
+            CONF_ENTITY_RPM: "sensor.rpm",
+        }
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map=entity_map)
+        assert forwarder._trigger_entity_ids == ["sensor.rpm"]
+
+    def test_only_location_configured_yields_no_trigger(self):
+        entity_map = {CONF_ENTITY_LOCATION: "device_tracker.car"}
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map=entity_map)
+        assert forwarder._trigger_entity_ids == []
+
+
 class TestAsyncStart:
-    def test_no_entities_configured_is_a_noop(self):
+    def test_no_trigger_entities_configured_is_a_noop(self):
         forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map={})
         unsub = forwarder.async_start()
         assert callable(unsub)
         unsub()  # 예외 없이 그냥 끝나야 한다.
 
+    def test_location_only_is_also_a_noop(self):
+        """위치만 골랐다면 트리거 대상이 없으므로 async_track_state_change_event를 걸지 않는다."""
+        entity_map = {CONF_ENTITY_LOCATION: "device_tracker.car"}
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map=entity_map)
+        unsub = forwarder.async_start()
+        assert callable(unsub)
+        unsub()
+
 
 class _FakeApiOk:
+    def __init__(self):
+        self.calls = 0
+
     async def async_send_telemetry(self, payload):
-        return None
+        self.calls += 1
 
 
 class _FakeApiFailing:
@@ -252,70 +201,83 @@ class TestAsyncPush:
         assert forwarder.last_push_ok is False
         assert forwarder.last_push_at is not None
 
+    def test_concurrent_pushes_are_serialized_by_the_send_lock(self):
+        """두 push가 거의 동시에 예약되어도 실제 전송은 락으로 한 번에 하나씩만 나간다.
 
-class TestOnlyWhenInVehicleGate:
-    """"탑승 중일 때만 전송" 옵션 — 사용자 요청으로 추가된 게이트."""
+        트립 경로 화살표가 뒤집히는 버그의 원인이었던, 두 HTTP 요청이 동시에 나가서
+        네트워크 타이밍에 따라 서버에 역순으로 도착할 수 있는 경쟁 상태를 막는 락이
+        실제로 걸려 있는지 확인한다.
+        """
+        order: list[str] = []
 
-    def test_disabled_always_sends_even_when_not_in_vehicle(self):
-        hass = FakeHass({"binary_sensor.bt": FakeState("off", domain="binary_sensor")})
+        class _SlowFirstThenFastApi:
+            def __init__(self):
+                self._calls = 0
+
+            async def async_send_telemetry(self, payload):
+                self._calls += 1
+                call_id = self._calls
+                order.append(f"start-{call_id}")
+                if call_id == 1:
+                    await asyncio.sleep(0.05)
+                order.append(f"end-{call_id}")
+
         forwarder = GarageTelemetryForwarder(
-            hass,
-            api=_FakeApiOk(),
-            entity_map={CONF_ENTITY_IN_VEHICLE: "binary_sensor.bt"},
-            only_when_in_vehicle=False,
+            FakeHass(), api=_SlowFirstThenFastApi(), entity_map={}
         )
-        _run(forwarder._async_push())
-        assert forwarder.last_push_ok is True
-        assert forwarder.last_skipped_not_in_vehicle is False
 
-    def test_enabled_and_in_vehicle_sends(self):
-        hass = FakeHass({"binary_sensor.bt": FakeState("on", domain="binary_sensor")})
-        forwarder = GarageTelemetryForwarder(
-            hass,
-            api=_FakeApiOk(),
-            entity_map={CONF_ENTITY_IN_VEHICLE: "binary_sensor.bt"},
-            only_when_in_vehicle=True,
-        )
-        _run(forwarder._async_push())
-        assert forwarder.last_push_ok is True
-        assert forwarder.last_skipped_not_in_vehicle is False
+        async def _scenario():
+            task1 = asyncio.create_task(forwarder._async_push())
+            await asyncio.sleep(0)  # task1이 락을 먼저 잡도록 양보
+            task2 = asyncio.create_task(forwarder._async_push())
+            await asyncio.gather(task1, task2)
 
-    def test_enabled_and_not_in_vehicle_skips(self):
-        hass = FakeHass({"binary_sensor.bt": FakeState("off", domain="binary_sensor")})
-        forwarder = GarageTelemetryForwarder(
-            hass,
-            api=_FakeApiOk(),
-            entity_map={CONF_ENTITY_IN_VEHICLE: "binary_sensor.bt"},
-            only_when_in_vehicle=True,
-        )
-        _run(forwarder._async_push())
-        # last_push_ok/last_push_at는 "실제로 보낸 적이 없다"는 뜻으로 그대로 None.
-        assert forwarder.last_push_ok is None
-        assert forwarder.last_push_at is None
-        assert forwarder.last_skipped_not_in_vehicle is True
+        _run(_scenario())
 
-    def test_enabled_and_unavailable_state_skips(self):
-        """탑승 여부를 판단할 수 없으면(unavailable) 안전하게 건너뛴다."""
-        hass = FakeHass(
-            {"sensor.engine_load": FakeState("unavailable", domain="sensor")}
-        )
-        forwarder = GarageTelemetryForwarder(
-            hass,
-            api=_FakeApiOk(),
-            entity_map={CONF_ENTITY_IN_VEHICLE: "sensor.engine_load"},
-            only_when_in_vehicle=True,
-        )
-        _run(forwarder._async_push())
-        assert forwarder.last_skipped_not_in_vehicle is True
+        assert order == ["start-1", "end-1", "start-2", "end-2"]
 
-    def test_enabled_but_no_in_vehicle_entity_configured_always_sends(self):
-        """탑승 여부 엔티티를 아예 안 골랐다면 판단 근거가 없으므로 옵션과 무관하게 보낸다."""
-        forwarder = GarageTelemetryForwarder(
-            FakeHass(),
-            api=_FakeApiOk(),
-            entity_map={CONF_ENTITY_SPEED: "sensor.speed"},
-            only_when_in_vehicle=True,
-        )
-        _run(forwarder._async_push())
-        assert forwarder.last_push_ok is True
-        assert forwarder.last_skipped_not_in_vehicle is False
+
+class TestScheduleDebounce:
+    """디바운스 타임스탬프를 동기적으로(스케줄링 시점에) 남겨야 하는 이유를 검증한다.
+
+    이전 버그: 타임스탬프를 비동기 _async_push 안에서 갱신했기 때문에, 첫 push
+    직후 아주 짧은 간격으로 두 번째 이벤트가 들어오면 디바운스가 걸리지 않고 두
+    push가 동시에 스케줄됐다.
+    """
+
+    def test_second_immediate_call_is_debounced_after_first_schedules(self):
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=_FakeApiOk(), entity_map={})
+
+        created_tasks: list[object] = []
+        forwarder.hass = type(
+            "_Hass", (), {"async_create_task": staticmethod(created_tasks.append)}
+        )()
+
+        try:
+            forwarder._async_schedule_push()
+            assert len(created_tasks) == 1
+            assert forwarder._last_push_monotonic is not None
+
+            forwarder._async_schedule_push()
+            assert len(created_tasks) == 1  # 두 번째는 디바운스되어 새 task가 생기지 않는다.
+        finally:
+            for coro in created_tasks:
+                coro.close()  # 실제로 스케줄되지 않은 코루틴이므로 명시적으로 닫아 경고를 막는다.
+
+    def test_after_interval_elapses_a_new_push_is_scheduled(self):
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=_FakeApiOk(), entity_map={})
+        created_tasks: list[object] = []
+        forwarder.hass = type(
+            "_Hass", (), {"async_create_task": staticmethod(created_tasks.append)}
+        )()
+
+        try:
+            forwarder._async_schedule_push()
+            assert len(created_tasks) == 1
+
+            forwarder._last_push_monotonic -= MIN_PUSH_INTERVAL_SECONDS + 1
+            forwarder._async_schedule_push()
+            assert len(created_tasks) == 2
+        finally:
+            for coro in created_tasks:
+                coro.close()

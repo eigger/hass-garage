@@ -174,7 +174,7 @@ class GarageTelemetryForwarder:
     def _read_coordinate(self, key: str, attribute: str) -> float | None:
         """lat/lon — device_tracker면 속성에서, 아니면 state 값을 그대로 float 변환."""
         state = self._get_state(key)
-        if state is None:
+        if state is None or state.state in ("unknown", "unavailable"):
             return None
         if state.domain == "device_tracker":
             value = state.attributes.get(attribute)

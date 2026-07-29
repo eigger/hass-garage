@@ -88,6 +88,13 @@ python -m pytest tests/ -v
 PR을 올리면 GitHub Actions가 Python 3.12/3.13/3.14에서 동일하게 검증합니다
 (`.github/workflows/tests.yml`).
 
+## Garage란?
+
+[Garage](https://github.com/eigger/garage)는 가족·홈랩용 셀프호스팅 차량 관리 앱입니다 —
+정비 스케줄, 주유/충전 기록, 리마인더, OBD/GPS 주행 리포트를 제공합니다. 이 통합구성요소는
+그 Garage 서버와 Home Assistant를 연결하는 역할만 하며, 실제 기록 관리·리포트·알림은
+Garage 웹 UI에서 이루어집니다.
+
 ## 라이선스
 
 MIT

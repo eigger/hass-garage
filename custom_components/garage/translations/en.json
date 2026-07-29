@@ -9,6 +9,20 @@
           "api_token": "Vehicle API token"
         }
       },
+      "sensors": {
+        "title": "Choose sensors to forward",
+        "description": "Pick Home Assistant entities to forward to Garage. All fields are optional — leave them blank to configure later.",
+        "data": {
+          "entity_latitude": "Latitude sensor (or device_tracker)",
+          "entity_longitude": "Longitude sensor (or device_tracker)",
+          "entity_speed": "Speed sensor",
+          "entity_rpm": "Engine RPM sensor",
+          "entity_fuel_level": "Fuel/battery level sensor",
+          "entity_odometer": "Odometer sensor",
+          "entity_in_vehicle": "In-vehicle / driving indicator — binary_sensor/device_tracker, or a numeric sensor like engine load/RPM (treated as driving when greater than 0)",
+          "only_when_in_vehicle": "Only send while driving — when enabled, telemetry is only sent while the driving indicator above is true; otherwise it's skipped."
+        }
+      },
       "reauth_confirm": {
         "title": "Reauthenticate Garage",
         "description": "The API token is no longer valid. Enter a new one.",
@@ -39,8 +53,8 @@
           "entity_rpm": "Engine RPM sensor",
           "entity_fuel_level": "Fuel/battery level sensor",
           "entity_odometer": "Odometer sensor",
-          "entity_in_vehicle": "In-vehicle indicator — binary_sensor/device_tracker, or a numeric sensor like engine load/RPM (treated as in-vehicle when greater than 0)",
-          "only_when_in_vehicle": "Only send while in the vehicle — when on, telemetry is only sent while the \"In-vehicle indicator\" above is true; otherwise it's skipped. Ignored if you didn't set an in-vehicle indicator."
+          "entity_in_vehicle": "In-vehicle / driving indicator — binary_sensor/device_tracker, or a numeric sensor like engine load/RPM (treated as driving when greater than 0)",
+          "only_when_in_vehicle": "Only send while driving — when enabled, telemetry is only sent while the driving indicator above is true; otherwise it's skipped."
         }
       }
     }
@@ -70,10 +84,10 @@
         }
       },
       "last_skipped_not_in_vehicle": {
-        "name": "Skipped (not in vehicle)",
+        "name": "Driving filter status",
         "state": {
-          "skipped": "Skipped",
-          "sent": "Sent"
+          "skipped": "Not driving (Skipped)",
+          "sent": "Driving (Sent)"
         }
       }
     },

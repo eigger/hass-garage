@@ -43,6 +43,12 @@ class GarageConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
+    def __init__(self) -> None:
+        """Initialize the config flow."""
+        self._host: str | None = None
+        self._api_token: str | None = None
+        self._title: str | None = None
+
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
@@ -69,10 +75,10 @@ class GarageConfigFlow(ConfigFlow, domain=DOMAIN):
                 else:
                     await self.async_set_unique_id(vehicle_id)
                     self._abort_if_unique_id_configured()
-                    return self.async_create_entry(
-                        title=status.get("name") or "Garage",
-                        data={CONF_HOST: host, CONF_API_TOKEN: api_token},
-                    )
+                    self._host = host
+                    self._api_token = api_token
+                    self._title = status.get("name") or "Garage"
+                    return await self.async_step_sensors()
 
         return self.async_show_form(
             step_id="user",
@@ -83,6 +89,23 @@ class GarageConfigFlow(ConfigFlow, domain=DOMAIN):
                 }
             ),
             errors=errors,
+        )
+
+    async def async_step_sensors(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Step 2: Pick which HA entities get forwarded to Garage as telemetry."""
+        if user_input is not None:
+            data = {key: value for key, value in user_input.items() if value}
+            return self.async_create_entry(
+                title=self._title or "Garage",
+                data={CONF_HOST: self._host, CONF_API_TOKEN: self._api_token},
+                options=data,
+            )
+
+        return self.async_show_form(
+            step_id="sensors",
+            data_schema=_sensor_options_schema(),
         )
 
     async def async_step_reauth(
@@ -127,6 +150,56 @@ class GarageConfigFlow(ConfigFlow, domain=DOMAIN):
         return GarageOptionsFlow()
 
 
+def _sensor_options_schema(current: dict[str, Any] | None = None) -> vol.Schema:
+    """Build entity selector schema for sensor mapping."""
+    if current is None:
+        current = {}
+    return vol.Schema(
+        {
+            vol.Optional(
+                CONF_ENTITY_LATITUDE,
+                default=current.get(CONF_ENTITY_LATITUDE, ""),
+            ): EntitySelector(
+                EntitySelectorConfig(domain=["sensor", "device_tracker"])
+            ),
+            vol.Optional(
+                CONF_ENTITY_LONGITUDE,
+                default=current.get(CONF_ENTITY_LONGITUDE, ""),
+            ): EntitySelector(
+                EntitySelectorConfig(domain=["sensor", "device_tracker"])
+            ),
+            vol.Optional(
+                CONF_ENTITY_SPEED,
+                default=current.get(CONF_ENTITY_SPEED, ""),
+            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
+            vol.Optional(
+                CONF_ENTITY_RPM,
+                default=current.get(CONF_ENTITY_RPM, ""),
+            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
+            vol.Optional(
+                CONF_ENTITY_FUEL_LEVEL,
+                default=current.get(CONF_ENTITY_FUEL_LEVEL, ""),
+            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
+            vol.Optional(
+                CONF_ENTITY_ODOMETER,
+                default=current.get(CONF_ENTITY_ODOMETER, ""),
+            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
+            vol.Optional(
+                CONF_ENTITY_IN_VEHICLE,
+                default=current.get(CONF_ENTITY_IN_VEHICLE, ""),
+            ): EntitySelector(
+                EntitySelectorConfig(
+                    domain=["binary_sensor", "device_tracker", "sensor"]
+                )
+            ),
+            vol.Optional(
+                CONF_ONLY_WHEN_IN_VEHICLE,
+                default=current.get(CONF_ONLY_WHEN_IN_VEHICLE, False),
+            ): BooleanSelector(),
+        }
+    )
+
+
 class GarageOptionsFlow(OptionsFlow):
     """Pick which HA entities get forwarded to Garage as telemetry.
 
@@ -143,48 +216,7 @@ class GarageOptionsFlow(OptionsFlow):
             return self.async_create_entry(data=data)
 
         current = self.config_entry.options
-        schema = vol.Schema(
-            {
-                vol.Optional(
-                    CONF_ENTITY_LATITUDE,
-                    default=current.get(CONF_ENTITY_LATITUDE, ""),
-                ): EntitySelector(
-                    EntitySelectorConfig(domain=["sensor", "device_tracker"])
-                ),
-                vol.Optional(
-                    CONF_ENTITY_LONGITUDE,
-                    default=current.get(CONF_ENTITY_LONGITUDE, ""),
-                ): EntitySelector(
-                    EntitySelectorConfig(domain=["sensor", "device_tracker"])
-                ),
-                vol.Optional(
-                    CONF_ENTITY_SPEED,
-                    default=current.get(CONF_ENTITY_SPEED, ""),
-                ): EntitySelector(EntitySelectorConfig(domain="sensor")),
-                vol.Optional(
-                    CONF_ENTITY_RPM,
-                    default=current.get(CONF_ENTITY_RPM, ""),
-                ): EntitySelector(EntitySelectorConfig(domain="sensor")),
-                vol.Optional(
-                    CONF_ENTITY_FUEL_LEVEL,
-                    default=current.get(CONF_ENTITY_FUEL_LEVEL, ""),
-                ): EntitySelector(EntitySelectorConfig(domain="sensor")),
-                vol.Optional(
-                    CONF_ENTITY_ODOMETER,
-                    default=current.get(CONF_ENTITY_ODOMETER, ""),
-                ): EntitySelector(EntitySelectorConfig(domain="sensor")),
-                vol.Optional(
-                    CONF_ENTITY_IN_VEHICLE,
-                    default=current.get(CONF_ENTITY_IN_VEHICLE, ""),
-                ): EntitySelector(
-                    EntitySelectorConfig(
-                        domain=["binary_sensor", "device_tracker", "sensor"]
-                    )
-                ),
-                vol.Optional(
-                    CONF_ONLY_WHEN_IN_VEHICLE,
-                    default=current.get(CONF_ONLY_WHEN_IN_VEHICLE, False),
-                ): BooleanSelector(),
-            }
+        return self.async_show_form(
+            step_id="init", data_schema=_sensor_options_schema(current)
         )
-        return self.async_show_form(step_id="init", data_schema=schema)
+

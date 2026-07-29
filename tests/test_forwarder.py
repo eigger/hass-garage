@@ -52,6 +52,13 @@ class TestToFloat:
     def test_non_numeric_string(self):
         assert _to_float("unavailable") is None
 
+    def test_invalid_strings(self):
+        assert _to_float("unknown") is None
+        assert _to_float("none") is None
+        assert _to_float("null") is None
+        assert _to_float("nan") is None
+        assert _to_float("inf") is None
+
 
 class TestReadCoordinate:
     def test_plain_sensor_state(self):

@@ -154,6 +154,12 @@ class GarageLastPushAtSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_last_push_at"
         self._attr_device_info = _device_info(entry)
 
+    async def async_added_to_hass(self) -> None:
+        """Register listener for forwarder updates."""
+        self.async_on_remove(
+            self._forwarder.async_add_listener(self.async_write_ha_state)
+        )
+
     @property
     def native_value(self) -> str | None:
         return self._forwarder.last_push_at
@@ -178,6 +184,12 @@ class GarageLastPushOkSensor(SensorEntity):
         self._attr_unique_id = f"{entry.entry_id}_last_push_ok"
         self._attr_device_info = _device_info(entry)
 
+    async def async_added_to_hass(self) -> None:
+        """Register listener for forwarder updates."""
+        self.async_on_remove(
+            self._forwarder.async_add_listener(self.async_write_ha_state)
+        )
+
     @property
     def native_value(self) -> str | None:
         if self._forwarder.last_push_ok is None:
@@ -194,7 +206,7 @@ class GarageLastPushOkSensor(SensorEntity):
 
 
 class GarageSkippedNotInVehicleSensor(SensorEntity):
-    """Whether the most recent change was skipped by "탑승 중일 때만 전송" (diagnostic)."""
+    """Whether the most recent change was skipped by "주행 중일 때만 전송" (diagnostic)."""
 
     _attr_has_entity_name = True
     _attr_translation_key = "last_skipped_not_in_vehicle"
@@ -208,6 +220,12 @@ class GarageSkippedNotInVehicleSensor(SensorEntity):
         self._forwarder = forwarder
         self._attr_unique_id = f"{entry.entry_id}_last_skipped_not_in_vehicle"
         self._attr_device_info = _device_info(entry)
+
+    async def async_added_to_hass(self) -> None:
+        """Register listener for forwarder updates."""
+        self.async_on_remove(
+            self._forwarder.async_add_listener(self.async_write_ha_state)
+        )
 
     @property
     def native_value(self) -> str:

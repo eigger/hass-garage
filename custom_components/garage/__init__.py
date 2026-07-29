@@ -73,6 +73,21 @@ class GarageTelemetryForwarder:
         self.last_push_at: str | None = None
         self.last_push_ok: bool | None = None
         self.last_skipped_not_in_vehicle: bool = False
+        self._listeners: list[callback] = []
+
+    def async_add_listener(self, update_callback: callback) -> callback:
+        """Register a callback for telemetry updates."""
+        self._listeners.append(update_callback)
+
+        def _unsubscribe() -> None:
+            if update_callback in self._listeners:
+                self._listeners.remove(update_callback)
+
+        return _unsubscribe
+
+    def _notify_listeners(self) -> None:
+        for listener in self._listeners:
+            listener()
 
     @property
     def entity_ids(self) -> list[str]:
@@ -112,6 +127,7 @@ class GarageTelemetryForwarder:
 
         if self._should_skip_not_in_vehicle():
             self.last_skipped_not_in_vehicle = True
+            self._notify_listeners()
             return
         self.last_skipped_not_in_vehicle = False
 
@@ -124,6 +140,7 @@ class GarageTelemetryForwarder:
         else:
             self.last_push_ok = True
         self.last_push_at = dt_util.utcnow().isoformat()
+        self._notify_listeners()
 
     def _should_skip_not_in_vehicle(self) -> bool:
         """"탑승 중일 때만 전송" 옵션이 켜져 있고, 실제로 탑승 중이 아닐 때만 건너뛴다.
@@ -167,7 +184,7 @@ class GarageTelemetryForwarder:
 
     def _read_float(self, key: str) -> float | None:
         state = self._get_state(key)
-        if state is None:
+        if state is None or state.state in ("unknown", "unavailable"):
             return None
         return _to_float(state.state)
 
@@ -184,7 +201,7 @@ class GarageTelemetryForwarder:
         state = self._get_state(key)
         if state is None:
             return None
-        if state.state in ("unknown", "unavailable"):
+        if state.state in ("unknown", "unavailable", "none", "null"):
             return None
         if state.domain == "device_tracker":
             return state.state == "home"
@@ -196,8 +213,24 @@ class GarageTelemetryForwarder:
 
 def _to_float(value: Any) -> float | None:
     """지원하지 않는/알 수 없는 상태값(unknown, unavailable 등)은 None으로 취급한다."""
+    if value is None:
+        return None
+    if isinstance(value, str) and value.lower() in (
+        "unknown",
+        "unavailable",
+        "none",
+        "null",
+        "nan",
+        "inf",
+        "-inf",
+    ):
+        return None
     try:
-        return float(value)
+        val = float(value)
+        import math
+        if math.isnan(val) or math.isinf(val):
+            return None
+        return val
     except (TypeError, ValueError):
         return None
 

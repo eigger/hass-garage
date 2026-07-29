@@ -9,6 +9,20 @@
           "api_token": "차량 API 토큰"
         }
       },
+      "sensors": {
+        "title": "전송할 센서 선택",
+        "description": "Garage로 전송할 HA 엔티티를 선택하세요. 전부 선택 사항이며, 비워두면 나중에 옵션에서 설정할 수 있습니다.",
+        "data": {
+          "entity_latitude": "위도 센서 (또는 device_tracker)",
+          "entity_longitude": "경도 센서 (또는 device_tracker)",
+          "entity_speed": "속도 센서",
+          "entity_rpm": "엔진 회전수(RPM) 센서",
+          "entity_fuel_level": "연료/배터리 잔량 센서",
+          "entity_odometer": "주행거리 센서",
+          "entity_in_vehicle": "차량 주행/탑승 여부 — binary_sensor/device_tracker 또는 엔진로드·RPM 등 숫자 센서(0보다 크면 주행 중으로 판단)",
+          "only_when_in_vehicle": "주행 중일 때만 전송 — 켜면 위 \"차량 주행/탑승 여부\" 센서가 참(주행 중)일 때만 데이터를 보내고, 시동이 꺼졌거나 주행 중이 아니면 건너뜁니다."
+        }
+      },
       "reauth_confirm": {
         "title": "Garage 재인증",
         "description": "API 토큰이 더 이상 유효하지 않습니다. 새 토큰을 입력하세요.",
@@ -39,8 +53,8 @@
           "entity_rpm": "엔진 회전수(RPM) 센서",
           "entity_fuel_level": "연료/배터리 잔량 센서",
           "entity_odometer": "주행거리 센서",
-          "entity_in_vehicle": "차량 탑승 여부 — binary_sensor/device_tracker 또는 엔진로드·RPM 같은 숫자 센서(0보다 크면 탑승중으로 판단)",
-          "only_when_in_vehicle": "탑승 중일 때만 전송 — 켜면 위 \"차량 탑승 여부\"가 참일 때만 보내고, 아니면 건너뜁니다. \"차량 탑승 여부\"를 지정하지 않았다면 이 옵션은 무시됩니다."
+          "entity_in_vehicle": "차량 주행/탑승 여부 — binary_sensor/device_tracker 또는 엔진로드·RPM 등 숫자 센서(0보다 크면 주행 중으로 판단)",
+          "only_when_in_vehicle": "주행 중일 때만 전송 — 켜면 위 \"차량 주행/탑승 여부\" 센서가 참(주행 중)일 때만 데이터를 보내고, 시동이 꺼졌거나 주행 중이 아니면 건너뜁니다."
         }
       }
     }
@@ -70,10 +84,10 @@
         }
       },
       "last_skipped_not_in_vehicle": {
-        "name": "탑승 중 아님으로 건너뜀",
+        "name": "주행 필터 전송 상태",
         "state": {
-          "skipped": "건너뜀",
-          "sent": "전송됨"
+          "skipped": "주행 중 아님 (전송 안 함)",
+          "sent": "주행 중 (전송됨)"
         }
       }
     },

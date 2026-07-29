@@ -1,6 +1,7 @@
 """pytest 설정 — homeassistant/aiohttp 없이 단위 테스트 실행 가능하도록 mock."""
 
 import sys
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 
@@ -74,7 +75,20 @@ for _mod in [
     "homeassistant.components",
     "homeassistant.components.device_tracker",
     "homeassistant.components.sensor",
-    "homeassistant.util",
-    "homeassistant.util.dt",
 ]:
     sys.modules[_mod] = MagicMock()
+
+# homeassistant.util.dt — SensorDeviceClass.TIMESTAMP는 실제 datetime을 요구하므로
+# now()가 MagicMock이 아니라 진짜 timezone-aware datetime을 반환하게 한다.
+#
+# ``from homeassistant.util import dt`` 형태의 import는 ``homeassistant.util``
+# 모듈 객체의 ``dt`` 속성을 먼저 찾는다 — sys.modules에 "homeassistant.util.dt"를
+# 따로 등록해도, 부모 모듈이 MagicMock이면 자동 생성된 속성이 먼저 잡혀 무시된다.
+# 그래서 부모(``homeassistant.util``)에 ``dt`` 속성을 명시적으로 달아준다.
+_mock_dt_util = MagicMock()
+_mock_dt_util.now = lambda: datetime.now(timezone.utc)
+
+_mock_util = MagicMock()
+_mock_util.dt = _mock_dt_util
+sys.modules["homeassistant.util"] = _mock_util
+sys.modules["homeassistant.util.dt"] = _mock_dt_util

@@ -20,6 +20,7 @@ import logging
 import math
 import time
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
@@ -66,7 +67,7 @@ class GarageTelemetryForwarder:
         self._entity_map = entity_map
         self._unsub_call_later: callback | None = None
         self._last_push_monotonic: float | None = None
-        self.last_push_at: str | None = None
+        self.last_push_at: datetime | None = None
         self.last_push_ok: bool | None = None
         self._listeners: list[callback] = []
         # 요청이 겹쳐서 서버에 역순으로 도착하면(네트워크 타이밍) 트립 경로가 뒤바뀔 수
@@ -156,8 +157,9 @@ class GarageTelemetryForwarder:
                 _LOGGER.warning("Failed to push telemetry to Garage: %s", err)
             else:
                 self.last_push_ok = True
-        # 사용자에게 보이는 진단 센서 값이므로 UTC가 아니라 HA에 설정된 로컬 시간으로 남긴다.
-        self.last_push_at = dt_util.now().isoformat()
+        # SensorDeviceClass.TIMESTAMP는 문자열이 아니라 timezone-aware datetime을
+        # 요구한다 — dt_util.now()가 HA에 설정된 로컬 타임존을 반영한 aware datetime이다.
+        self.last_push_at = dt_util.now()
         self._notify_listeners()
 
     def _gather_payload(self) -> dict[str, Any]:

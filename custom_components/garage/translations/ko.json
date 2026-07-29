@@ -60,13 +60,6 @@
       },
       "last_push_at": {
         "name": "마지막 전송 시각"
-      },
-      "last_push_ok": {
-        "name": "마지막 전송 상태",
-        "state": {
-          "ok": "성공",
-          "error": "실패"
-        }
       }
     },
     "device_tracker": {

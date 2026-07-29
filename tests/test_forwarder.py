@@ -1,6 +1,7 @@
 """GarageTelemetryForwarder(push: HA → Garage) 단위 테스트."""
 
 import asyncio
+from datetime import datetime
 
 from custom_components.garage import GarageTelemetryForwarder, _to_float
 from custom_components.garage.api import GarageError
@@ -222,7 +223,7 @@ class TestAsyncPush:
         forwarder = GarageTelemetryForwarder(FakeHass(), api=_FakeApiOk(), entity_map={})
         _run(forwarder._async_push())
         assert forwarder.last_push_ok is True
-        assert forwarder.last_push_at is not None
+        assert isinstance(forwarder.last_push_at, datetime)
 
     def test_failure_marks_last_push_not_ok(self):
         forwarder = GarageTelemetryForwarder(
@@ -230,7 +231,7 @@ class TestAsyncPush:
         )
         _run(forwarder._async_push())
         assert forwarder.last_push_ok is False
-        assert forwarder.last_push_at is not None
+        assert isinstance(forwarder.last_push_at, datetime)
 
     def test_concurrent_pushes_are_serialized_by_the_send_lock(self):
         """두 push가 거의 동시에 예약되어도 실제 전송은 락으로 한 번에 하나씩만 나간다.

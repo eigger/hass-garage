@@ -60,13 +60,6 @@
       },
       "last_push_at": {
         "name": "Last push time"
-      },
-      "last_push_ok": {
-        "name": "Last push status",
-        "state": {
-          "ok": "OK",
-          "error": "Error"
-        }
       }
     },
     "device_tracker": {

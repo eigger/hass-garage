@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Any, ClassVar
+from datetime import datetime
+from typing import Any
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -42,7 +43,6 @@ async def async_setup_entry(
         [
             GarageDueRemindersSensor(data.reminders_coordinator, entry),
             GarageLastPushAtSensor(data.forwarder, entry),
-            GarageLastPushOkSensor(data.forwarder, entry),
         ]
     )
 
@@ -89,12 +89,17 @@ class GarageDueRemindersSensor(
 
 
 class GarageLastPushAtSensor(SensorEntity):
-    """Timestamp of the last telemetry push to Garage (diagnostic)."""
+    """Timestamp of the last telemetry push to Garage (diagnostic).
+
+    성공 여부는 별도 센서로 두지 않고 이 센서의 속성(``success``)으로 담는다 —
+    "마지막으로 언제 보냈고 성공했는지"는 한 번의 push 결과를 두 각도로 보는
+    것뿐이라 엔티티를 분리할 이유가 없다.
+    """
 
     _attr_has_entity_name = True
     _attr_translation_key = "last_push_at"
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_icon = "mdi:upload"
     _attr_should_poll = False
 
     def __init__(self, forwarder: GarageTelemetryForwarder, entry: ConfigEntry) -> None:
@@ -109,44 +114,19 @@ class GarageLastPushAtSensor(SensorEntity):
         )
 
     @property
-    def native_value(self) -> str | None:
+    def native_value(self) -> datetime | None:
         return self._forwarder.last_push_at
 
     @property
-    def available(self) -> bool:
-        return bool(self._forwarder.entity_ids)
-
-
-class GarageLastPushOkSensor(SensorEntity):
-    """Whether the last telemetry push succeeded (diagnostic)."""
-
-    _attr_has_entity_name = True
-    _attr_translation_key = "last_push_ok"
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
-    _attr_device_class = SensorDeviceClass.ENUM
-    _attr_options: ClassVar[list[str]] = ["ok", "error"]
-    _attr_should_poll = False
-
-    def __init__(self, forwarder: GarageTelemetryForwarder, entry: ConfigEntry) -> None:
-        self._forwarder = forwarder
-        self._attr_unique_id = f"{entry.entry_id}_last_push_ok"
-        self._attr_device_info = _device_info(entry)
-
-    async def async_added_to_hass(self) -> None:
-        """Register listener for forwarder updates."""
-        self.async_on_remove(
-            self._forwarder.async_add_listener(self.async_write_ha_state)
-        )
-
-    @property
-    def native_value(self) -> str | None:
-        if self._forwarder.last_push_ok is None:
-            return None
-        return "ok" if self._forwarder.last_push_ok else "error"
-
-    @property
     def icon(self) -> str:
-        return "mdi:check-circle" if self._forwarder.last_push_ok else "mdi:alert-circle"
+        return "mdi:alert-circle" if self._forwarder.last_push_ok is False else "mdi:upload"
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        return {
+            "success": self._forwarder.last_push_ok,
+            "forwarded_entities": self._forwarder.entity_ids,
+        }
 
     @property
     def available(self) -> bool:

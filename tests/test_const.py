@@ -3,15 +3,24 @@ config_flow/forwarder에 연결하는 걸 깜빡하는 실수를 잡기 위한 �
 """
 
 from custom_components.garage.const import (
+    CONF_ENTITY_FUEL_LEVEL,
     CONF_ENTITY_LOCATION,
+    CONF_ENTITY_ODOMETER,
     CONF_ENTITY_RPM,
+    CONF_ENTITY_SPEED,
     FORWARD_ENTITY_KEYS,
     TRIGGER_EXCLUDED_KEYS,
 )
 
 
 def test_forward_entity_keys_contains_every_conf_entity_constant():
-    assert set(FORWARD_ENTITY_KEYS) == {CONF_ENTITY_LOCATION, CONF_ENTITY_RPM}
+    assert set(FORWARD_ENTITY_KEYS) == {
+        CONF_ENTITY_LOCATION,
+        CONF_ENTITY_RPM,
+        CONF_ENTITY_SPEED,
+        CONF_ENTITY_FUEL_LEVEL,
+        CONF_ENTITY_ODOMETER,
+    }
 
 
 def test_forward_entity_keys_has_no_duplicates():
@@ -23,5 +32,10 @@ def test_location_is_excluded_from_trigger_but_still_forwardable():
     assert CONF_ENTITY_LOCATION in FORWARD_ENTITY_KEYS
 
 
-def test_rpm_is_not_excluded_from_trigger():
-    assert CONF_ENTITY_RPM not in TRIGGER_EXCLUDED_KEYS
+def test_only_location_is_excluded_from_trigger():
+    assert set(TRIGGER_EXCLUDED_KEYS) == {CONF_ENTITY_LOCATION}
+
+
+def test_rpm_speed_fuel_odometer_are_not_excluded_from_trigger():
+    for key in (CONF_ENTITY_RPM, CONF_ENTITY_SPEED, CONF_ENTITY_FUEL_LEVEL, CONF_ENTITY_ODOMETER):
+        assert key not in TRIGGER_EXCLUDED_KEYS

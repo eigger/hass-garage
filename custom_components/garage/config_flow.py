@@ -19,8 +19,11 @@ from homeassistant.helpers.selector import EntitySelector, EntitySelectorConfig
 from .api import GarageApi, GarageAuthError, GarageConnectionError, GarageError
 from .const import (
     CONF_API_TOKEN,
+    CONF_ENTITY_FUEL_LEVEL,
     CONF_ENTITY_LOCATION,
+    CONF_ENTITY_ODOMETER,
     CONF_ENTITY_RPM,
+    CONF_ENTITY_SPEED,
     CONF_HOST,
     DOMAIN,
 )
@@ -159,6 +162,18 @@ def _sensor_options_schema(current: dict[str, Any] | None = None) -> vol.Schema:
             vol.Optional(
                 CONF_ENTITY_RPM,
                 default=current.get(CONF_ENTITY_RPM, ""),
+            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
+            vol.Optional(
+                CONF_ENTITY_SPEED,
+                default=current.get(CONF_ENTITY_SPEED, ""),
+            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
+            vol.Optional(
+                CONF_ENTITY_FUEL_LEVEL,
+                default=current.get(CONF_ENTITY_FUEL_LEVEL, ""),
+            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
+            vol.Optional(
+                CONF_ENTITY_ODOMETER,
+                default=current.get(CONF_ENTITY_ODOMETER, ""),
             ): EntitySelector(EntitySelectorConfig(domain="sensor")),
         }
     )

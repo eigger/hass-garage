@@ -14,7 +14,10 @@
         "description": "Pick the HA entities to send to Garage. All fields are optional — leave blank and configure later from options.",
         "data": {
           "entity_location": "Location (device_tracker) — one entity that already carries both latitude and longitude",
-          "entity_rpm": "Engine RPM sensor"
+          "entity_rpm": "Engine RPM sensor",
+          "entity_speed": "Speed sensor",
+          "entity_fuel_level": "Fuel/battery level sensor",
+          "entity_odometer": "Odometer sensor"
         }
       },
       "reauth_confirm": {
@@ -39,25 +42,19 @@
     "step": {
       "init": {
         "title": "Choose sensors to forward",
-        "description": "Only non-location changes (e.g. RPM) trigger a send; the latest location at that moment is included too. All fields are optional — leave one blank to skip it.",
+        "description": "Only non-location changes (e.g. RPM, speed, fuel, odometer) trigger a send; the latest location at that moment is included too. All fields are optional — leave one blank to skip it.",
         "data": {
           "entity_location": "Location (device_tracker) — one entity that already carries both latitude and longitude",
-          "entity_rpm": "Engine RPM sensor"
+          "entity_rpm": "Engine RPM sensor",
+          "entity_speed": "Speed sensor",
+          "entity_fuel_level": "Fuel/battery level sensor",
+          "entity_odometer": "Odometer sensor"
         }
       }
     }
   },
   "entity": {
     "sensor": {
-      "odometer": {
-        "name": "Odometer"
-      },
-      "fuel_level": {
-        "name": "Fuel/battery level"
-      },
-      "speed": {
-        "name": "Speed"
-      },
       "due_reminders": {
         "name": "Due & upcoming reminders"
       },

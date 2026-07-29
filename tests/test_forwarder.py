@@ -5,8 +5,11 @@ import asyncio
 from custom_components.garage import GarageTelemetryForwarder, _to_float
 from custom_components.garage.api import GarageError
 from custom_components.garage.const import (
+    CONF_ENTITY_FUEL_LEVEL,
     CONF_ENTITY_LOCATION,
+    CONF_ENTITY_ODOMETER,
     CONF_ENTITY_RPM,
+    CONF_ENTITY_SPEED,
     MIN_PUSH_INTERVAL_SECONDS,
 )
 
@@ -108,17 +111,30 @@ class TestGatherPayload:
                     attributes={"latitude": 37.1, "longitude": 127.2},
                 ),
                 "sensor.rpm": FakeState("1800"),
+                "sensor.speed": FakeState("42.3"),
+                "sensor.fuel": FakeState("55"),
+                "sensor.odo": FakeState("12345"),
             }
         )
         entity_map = {
             CONF_ENTITY_LOCATION: "device_tracker.car",
             CONF_ENTITY_RPM: "sensor.rpm",
+            CONF_ENTITY_SPEED: "sensor.speed",
+            CONF_ENTITY_FUEL_LEVEL: "sensor.fuel",
+            CONF_ENTITY_ODOMETER: "sensor.odo",
         }
         forwarder = GarageTelemetryForwarder(hass, api=None, entity_map=entity_map)
 
         payload = forwarder._gather_payload()
 
-        assert payload == {"lat": 37.1, "lon": 127.2, "rpm": 1800.0}
+        assert payload == {
+            "lat": 37.1,
+            "lon": 127.2,
+            "rpm": 1800.0,
+            "speed": 42.3,
+            "fuelLevel": 55.0,
+            "odometer": 12345.0,
+        }
 
     def test_empty_mapping_produces_all_none(self):
         forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map={})
@@ -141,7 +157,8 @@ class TestEntityIds:
 
 
 class TestTriggerEntityIds:
-    """위치는 전송 트리거에서 제외되고, 나머지 값이 바뀔 때만 전송을 트리거한다."""
+    """위치는 전송 트리거에서 제외되고, 나머지 값(RPM/속도/연료/주행거리)이
+    바뀔 때만 전송을 트리거한다."""
 
     def test_location_excluded_from_trigger(self):
         entity_map = {
@@ -150,6 +167,20 @@ class TestTriggerEntityIds:
         }
         forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map=entity_map)
         assert forwarder._trigger_entity_ids == ["sensor.rpm"]
+
+    def test_speed_fuel_odometer_all_trigger(self):
+        entity_map = {
+            CONF_ENTITY_LOCATION: "device_tracker.car",
+            CONF_ENTITY_SPEED: "sensor.speed",
+            CONF_ENTITY_FUEL_LEVEL: "sensor.fuel",
+            CONF_ENTITY_ODOMETER: "sensor.odo",
+        }
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=None, entity_map=entity_map)
+        assert set(forwarder._trigger_entity_ids) == {
+            "sensor.speed",
+            "sensor.fuel",
+            "sensor.odo",
+        }
 
     def test_only_location_configured_yields_no_trigger(self):
         entity_map = {CONF_ENTITY_LOCATION: "device_tracker.car"}

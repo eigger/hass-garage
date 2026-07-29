@@ -13,10 +13,16 @@ CONF_API_TOKEN = "api_token"
 # 위도/경도를 따로 고를 필요가 없다.
 CONF_ENTITY_LOCATION = "entity_location"
 CONF_ENTITY_RPM = "entity_rpm"
+CONF_ENTITY_SPEED = "entity_speed"
+CONF_ENTITY_FUEL_LEVEL = "entity_fuel_level"
+CONF_ENTITY_ODOMETER = "entity_odometer"
 
 FORWARD_ENTITY_KEYS: tuple[str, ...] = (
     CONF_ENTITY_LOCATION,
     CONF_ENTITY_RPM,
+    CONF_ENTITY_SPEED,
+    CONF_ENTITY_FUEL_LEVEL,
+    CONF_ENTITY_ODOMETER,
 )
 
 # 전송 트리거(상태 변화 감시 대상)에서는 제외하는 필드 — 위치는 주행 중 계속 바뀌므로

@@ -3,13 +3,14 @@
 두 방향을 모두 지원한다:
 
 - **push (HA → Garage)**: 옵션에서 고른 HA 엔티티들의 상태가 바뀔 때마다
-  ``GarageTelemetryForwarder``가 ``POST /api/ingest/telemetry``로 전송한다.
-  YAML 설정(``rest_command`` 등) 없이 화면에서 엔티티만 고르면 된다. 위치(위경도)는
-  주행 중 계속 바뀌므로 전송 트리거에서는 빼고, RPM 등 나머지 값이 바뀔 때만 전송하며
-  그 시점의 최신 위치를 함께 실어 보낸다.
+  ``GarageTelemetryForwarder``가 ``POST /api/ingest/telemetry``로 위치/RPM/속도/
+  연료량/주행거리를 전송한다. YAML 설정(``rest_command`` 등) 없이 화면에서
+  엔티티만 고르면 된다. 위치(위경도)는 주행 중 계속 바뀌므로 전송 트리거에서는
+  빼고, 나머지 값이 바뀔 때만 전송하며 그 시점의 최신 위치를 함께 실어 보낸다.
 - **pull (Garage → HA)**: ``GarageStatusCoordinator``/``GarageRemindersCoordinator``가
-  Garage가 이미 계산해 둔 주행거리·연료량·위치·리마인더를 주기적으로 읽어와
-  센서로 보여준다.
+  Garage가 이미 계산해 둔 마지막 위치·리마인더를 주기적으로 읽어와 센서로
+  보여준다. 주행거리·연료량·속도는 애초에 HA 엔티티에서 보내는 원본 값이라
+  Garage 쪽 계산 결과를 HA에 다시 표시하면 중복이므로 별도 표시 센서는 두지 않는다.
 """
 
 from __future__ import annotations
@@ -31,8 +32,11 @@ from homeassistant.util import dt as dt_util
 from .api import GarageApi, GarageError
 from .const import (
     CONF_API_TOKEN,
+    CONF_ENTITY_FUEL_LEVEL,
     CONF_ENTITY_LOCATION,
+    CONF_ENTITY_ODOMETER,
     CONF_ENTITY_RPM,
+    CONF_ENTITY_SPEED,
     CONF_HOST,
     FORWARD_ENTITY_KEYS,
     MIN_PUSH_INTERVAL_SECONDS,
@@ -162,6 +166,9 @@ class GarageTelemetryForwarder:
             "lat": lat,
             "lon": lon,
             "rpm": self._read_float(CONF_ENTITY_RPM),
+            "speed": self._read_float(CONF_ENTITY_SPEED),
+            "fuelLevel": self._read_float(CONF_ENTITY_FUEL_LEVEL),
+            "odometer": self._read_float(CONF_ENTITY_ODOMETER),
         }
 
     def _get_state(self, key: str):

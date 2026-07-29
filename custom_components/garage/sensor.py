@@ -18,7 +18,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from . import GarageRuntimeData, GarageTelemetryForwarder
 from .const import DOMAIN
-from .coordinator import GarageRemindersCoordinator, GarageStatusCoordinator
+from .coordinator import GarageRemindersCoordinator
 
 
 def _device_info(entry: ConfigEntry) -> DeviceInfo:
@@ -40,73 +40,11 @@ async def async_setup_entry(
 
     async_add_entities(
         [
-            GarageOdometerSensor(data.status_coordinator, entry),
-            GarageFuelLevelSensor(data.status_coordinator, entry),
-            GarageSpeedSensor(data.status_coordinator, entry),
             GarageDueRemindersSensor(data.reminders_coordinator, entry),
             GarageLastPushAtSensor(data.forwarder, entry),
             GarageLastPushOkSensor(data.forwarder, entry),
         ]
     )
-
-
-class GarageStatusSensor(CoordinatorEntity[GarageStatusCoordinator], SensorEntity):
-    """Base class for sensors backed by GET /api/ingest/status."""
-
-    _attr_has_entity_name = True
-
-    def __init__(
-        self, coordinator: GarageStatusCoordinator, entry: ConfigEntry, key: str
-    ) -> None:
-        super().__init__(coordinator)
-        self._attr_unique_id = f"{entry.entry_id}_{key}"
-        self._attr_translation_key = key
-        self._attr_device_info = _device_info(entry)
-
-
-class GarageOdometerSensor(GarageStatusSensor):
-    """Vehicle odometer, as last known by Garage."""
-
-    _attr_native_unit_of_measurement = "km"
-    _attr_state_class = SensorStateClass.TOTAL_INCREASING
-    _attr_icon = "mdi:counter"
-
-    def __init__(self, coordinator: GarageStatusCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, "odometer")
-
-    @property
-    def native_value(self) -> float | None:
-        return (self.coordinator.data or {}).get("odometer")
-
-
-class GarageFuelLevelSensor(GarageStatusSensor):
-    """Fuel/battery level, as last known by Garage."""
-
-    _attr_native_unit_of_measurement = "%"
-    _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_icon = "mdi:gas-station"
-
-    def __init__(self, coordinator: GarageStatusCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, "fuel_level")
-
-    @property
-    def native_value(self) -> float | None:
-        return (self.coordinator.data or {}).get("fuelLevel")
-
-
-class GarageSpeedSensor(GarageStatusSensor):
-    """Last known speed reported to Garage."""
-
-    _attr_native_unit_of_measurement = "km/h"
-    _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_icon = "mdi:speedometer"
-
-    def __init__(self, coordinator: GarageStatusCoordinator, entry: ConfigEntry) -> None:
-        super().__init__(coordinator, entry, "speed")
-
-    @property
-    def native_value(self) -> float | None:
-        return (self.coordinator.data or {}).get("speed")
 
 
 class GarageDueRemindersSensor(

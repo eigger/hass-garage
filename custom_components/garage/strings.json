@@ -17,7 +17,8 @@
           "entity_rpm": "엔진 회전수(RPM) 센서",
           "entity_speed": "속도 센서",
           "entity_fuel_level": "연료/배터리 잔량 센서",
-          "entity_odometer": "주행거리 센서"
+          "entity_odometer": "주행거리 센서",
+          "push_interval_seconds": "최소 전송 간격(초) — RPM처럼 자주 바뀌는 값이라도 이 간격 안에서는 묶어서 한 번만 보냅니다"
         }
       },
       "reauth_confirm": {
@@ -48,7 +49,8 @@
           "entity_rpm": "엔진 회전수(RPM) 센서",
           "entity_speed": "속도 센서",
           "entity_fuel_level": "연료/배터리 잔량 센서",
-          "entity_odometer": "주행거리 센서"
+          "entity_odometer": "주행거리 센서",
+          "push_interval_seconds": "최소 전송 간격(초) — RPM처럼 자주 바뀌는 값이라도 이 간격 안에서는 묶어서 한 번만 보냅니다"
         }
       }
     }

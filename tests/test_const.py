@@ -8,7 +8,10 @@ from custom_components.garage.const import (
     CONF_ENTITY_ODOMETER,
     CONF_ENTITY_RPM,
     CONF_ENTITY_SPEED,
+    DEFAULT_PUSH_INTERVAL_SECONDS,
     FORWARD_ENTITY_KEYS,
+    MAX_PUSH_INTERVAL_SECONDS_BOUND,
+    MIN_PUSH_INTERVAL_SECONDS_BOUND,
     TRIGGER_EXCLUDED_KEYS,
 )
 
@@ -39,3 +42,8 @@ def test_only_location_is_excluded_from_trigger():
 def test_rpm_speed_fuel_odometer_are_not_excluded_from_trigger():
     for key in (CONF_ENTITY_RPM, CONF_ENTITY_SPEED, CONF_ENTITY_FUEL_LEVEL, CONF_ENTITY_ODOMETER):
         assert key not in TRIGGER_EXCLUDED_KEYS
+
+
+def test_default_push_interval_is_within_its_own_bounds():
+    assert MIN_PUSH_INTERVAL_SECONDS_BOUND <= DEFAULT_PUSH_INTERVAL_SECONDS
+    assert DEFAULT_PUSH_INTERVAL_SECONDS <= MAX_PUSH_INTERVAL_SECONDS_BOUND

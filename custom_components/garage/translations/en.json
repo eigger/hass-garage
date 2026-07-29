@@ -17,7 +17,8 @@
           "entity_rpm": "Engine RPM sensor",
           "entity_speed": "Speed sensor",
           "entity_fuel_level": "Fuel/battery level sensor",
-          "entity_odometer": "Odometer sensor"
+          "entity_odometer": "Odometer sensor",
+          "push_interval_seconds": "Minimum push interval (seconds) — even a fast-changing value like RPM is coalesced within this window"
         }
       },
       "reauth_confirm": {
@@ -48,7 +49,8 @@
           "entity_rpm": "Engine RPM sensor",
           "entity_speed": "Speed sensor",
           "entity_fuel_level": "Fuel/battery level sensor",
-          "entity_odometer": "Odometer sensor"
+          "entity_odometer": "Odometer sensor",
+          "push_interval_seconds": "Minimum push interval (seconds) — even a fast-changing value like RPM is coalesced within this window"
         }
       }
     }

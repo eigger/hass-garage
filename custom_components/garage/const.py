@@ -31,8 +31,12 @@ FORWARD_ENTITY_KEYS: tuple[str, ...] = (
 TRIGGER_EXCLUDED_KEYS: tuple[str, ...] = (CONF_ENTITY_LOCATION,)
 
 # Garage 서버로 push하되, 같은 틱에 여러 엔티티가 연달아 바뀌는 경우까지 매번
-# 요청하지 않도록 최소 간격을 둔다.
-MIN_PUSH_INTERVAL_SECONDS = 10
+# 요청하지 않도록 최소 간격을 둔다. RPM처럼 초 단위로 계속 바뀌는 센서를 쓰는
+# 사용자는 옵션에서 늘릴 수 있도록 상수가 아니라 옵션 기본값으로 둔다.
+CONF_PUSH_INTERVAL_SECONDS = "push_interval_seconds"
+DEFAULT_PUSH_INTERVAL_SECONDS = 10
+MIN_PUSH_INTERVAL_SECONDS_BOUND = 1
+MAX_PUSH_INTERVAL_SECONDS_BOUND = 300
 
 # GET /api/ingest/status, /api/ingest/reminders 폴링 주기 — Garage가 자체적으로
 # 계산/저장한 값을 HA 센서로 다시 보여주는 용도라 자주 갱신할 필요는 없다.

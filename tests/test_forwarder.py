@@ -11,7 +11,7 @@ from custom_components.garage.const import (
     CONF_ENTITY_ODOMETER,
     CONF_ENTITY_RPM,
     CONF_ENTITY_SPEED,
-    MIN_PUSH_INTERVAL_SECONDS,
+    DEFAULT_PUSH_INTERVAL_SECONDS,
 )
 
 
@@ -307,7 +307,34 @@ class TestScheduleDebounce:
             forwarder._async_schedule_push()
             assert len(created_tasks) == 1
 
-            forwarder._last_push_monotonic -= MIN_PUSH_INTERVAL_SECONDS + 1
+            forwarder._last_push_monotonic -= DEFAULT_PUSH_INTERVAL_SECONDS + 1
+            forwarder._async_schedule_push()
+            assert len(created_tasks) == 2
+        finally:
+            for coro in created_tasks:
+                coro.close()
+
+    def test_default_interval_used_when_not_specified(self):
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=_FakeApiOk(), entity_map={})
+        assert forwarder._push_interval_seconds == DEFAULT_PUSH_INTERVAL_SECONDS
+
+    def test_custom_interval_shortens_the_debounce_window(self):
+        """RPM처럼 초 단위로 바뀌는 값을 쓰는 사용자가 간격을 줄일 수 있어야 한다."""
+        forwarder = GarageTelemetryForwarder(
+            FakeHass(), api=_FakeApiOk(), entity_map={}, push_interval_seconds=2
+        )
+        created_tasks: list[object] = []
+        forwarder.hass = type(
+            "_Hass", (), {"async_create_task": staticmethod(created_tasks.append)}
+        )()
+
+        try:
+            forwarder._async_schedule_push()
+            assert len(created_tasks) == 1
+
+            # 기본값(10초)보다는 지났지만 커스텀 간격(2초)보다는 짧게 지난 경우에도
+            # 이미 디바운스가 풀려서 즉시 다시 전송되어야 한다.
+            forwarder._last_push_monotonic -= 3
             forwarder._async_schedule_push()
             assert len(created_tasks) == 2
         finally:

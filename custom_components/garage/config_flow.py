@@ -14,7 +14,13 @@ from homeassistant.config_entries import (
 )
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.selector import EntitySelector, EntitySelectorConfig
+from homeassistant.helpers.selector import (
+    EntitySelector,
+    EntitySelectorConfig,
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+)
 
 from .api import GarageApi, GarageAuthError, GarageConnectionError, GarageError
 from .const import (
@@ -25,7 +31,11 @@ from .const import (
     CONF_ENTITY_RPM,
     CONF_ENTITY_SPEED,
     CONF_HOST,
+    CONF_PUSH_INTERVAL_SECONDS,
+    DEFAULT_PUSH_INTERVAL_SECONDS,
     DOMAIN,
+    MAX_PUSH_INTERVAL_SECONDS_BOUND,
+    MIN_PUSH_INTERVAL_SECONDS_BOUND,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -175,6 +185,20 @@ def _sensor_options_schema(current: dict[str, Any] | None = None) -> vol.Schema:
                 CONF_ENTITY_ODOMETER,
                 default=current.get(CONF_ENTITY_ODOMETER, ""),
             ): EntitySelector(EntitySelectorConfig(domain="sensor")),
+            vol.Optional(
+                CONF_PUSH_INTERVAL_SECONDS,
+                default=current.get(
+                    CONF_PUSH_INTERVAL_SECONDS, DEFAULT_PUSH_INTERVAL_SECONDS
+                ),
+            ): NumberSelector(
+                NumberSelectorConfig(
+                    min=MIN_PUSH_INTERVAL_SECONDS_BOUND,
+                    max=MAX_PUSH_INTERVAL_SECONDS_BOUND,
+                    step=1,
+                    unit_of_measurement="s",
+                    mode=NumberSelectorMode.BOX,
+                )
+            ),
         }
     )
 

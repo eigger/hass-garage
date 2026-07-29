@@ -39,8 +39,9 @@ from .const import (
     CONF_ENTITY_RPM,
     CONF_ENTITY_SPEED,
     CONF_HOST,
+    CONF_PUSH_INTERVAL_SECONDS,
+    DEFAULT_PUSH_INTERVAL_SECONDS,
     FORWARD_ENTITY_KEYS,
-    MIN_PUSH_INTERVAL_SECONDS,
     TRIGGER_EXCLUDED_KEYS,
 )
 from .coordinator import GarageRemindersCoordinator, GarageStatusCoordinator
@@ -57,14 +58,21 @@ class GarageTelemetryForwarder:
     """Watches configured entities and pushes their values to Garage.
 
     상태가 바뀔 때마다 즉시 보내되, 같은 틱에 여러 엔티티가 연달아 바뀌는 경우엔
-    ``MIN_PUSH_INTERVAL_SECONDS``만큼 묶어서 마지막 값만 한 번 보낸다. 위치는 전송
+    ``push_interval_seconds``만큼 묶어서 마지막 값만 한 번 보낸다. 위치는 전송
     "트리거"에서는 제외된다 — 트리거 대상은 ``_trigger_entity_ids`` 참고.
     """
 
-    def __init__(self, hass: HomeAssistant, api: GarageApi, entity_map: dict[str, str]) -> None:
+    def __init__(
+        self,
+        hass: HomeAssistant,
+        api: GarageApi,
+        entity_map: dict[str, str],
+        push_interval_seconds: float = DEFAULT_PUSH_INTERVAL_SECONDS,
+    ) -> None:
         self.hass = hass
         self._api = api
         self._entity_map = entity_map
+        self._push_interval_seconds = push_interval_seconds
         self._unsub_call_later: callback | None = None
         self._last_push_monotonic: float | None = None
         self.last_push_at: datetime | None = None
@@ -134,10 +142,10 @@ class GarageTelemetryForwarder:
         now = time.monotonic()
         if (
             self._last_push_monotonic is not None
-            and now - self._last_push_monotonic < MIN_PUSH_INTERVAL_SECONDS
+            and now - self._last_push_monotonic < self._push_interval_seconds
         ):
             if self._unsub_call_later is None:
-                delay = MIN_PUSH_INTERVAL_SECONDS - (now - self._last_push_monotonic)
+                delay = self._push_interval_seconds - (now - self._last_push_monotonic)
                 self._unsub_call_later = async_call_later(
                     self.hass, delay, self._handle_delayed_push
                 )
@@ -234,7 +242,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: GarageConfigEntry) -> bo
     await reminders_coordinator.async_config_entry_first_refresh()
 
     entity_map = {key: entry.options[key] for key in FORWARD_ENTITY_KEYS if entry.options.get(key)}
-    forwarder = GarageTelemetryForwarder(hass, api, entity_map)
+    push_interval_seconds = entry.options.get(
+        CONF_PUSH_INTERVAL_SECONDS, DEFAULT_PUSH_INTERVAL_SECONDS
+    )
+    forwarder = GarageTelemetryForwarder(hass, api, entity_map, push_interval_seconds)
     unsub = forwarder.async_start()
     entry.async_on_unload(unsub)
 

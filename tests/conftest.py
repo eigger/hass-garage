@@ -64,7 +64,6 @@ sys.modules["aiohttp"] = _mock_aiohttp
 # 쓰이므로 MagicMock으로 충분하다.
 for _mod in [
     "homeassistant",
-    "homeassistant.const",
     "homeassistant.helpers",
     "homeassistant.helpers.aiohttp_client",
     "homeassistant.helpers.event",
@@ -77,6 +76,14 @@ for _mod in [
     "homeassistant.components.sensor",
 ]:
     sys.modules[_mod] = MagicMock()
+
+# homeassistant.const — STATE_UNKNOWN/STATE_UNAVAILABLE은 실제 HA와 같은 문자열이어야
+# "old_state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE)" 같은 비교가 테스트에서 의미가
+# 있다 — 그냥 MagicMock()이면 자동 생성된 임의의 객체라 어떤 문자열과도 안 맞는다.
+_mock_const = MagicMock()
+_mock_const.STATE_UNKNOWN = "unknown"
+_mock_const.STATE_UNAVAILABLE = "unavailable"
+sys.modules["homeassistant.const"] = _mock_const
 
 # homeassistant.util.dt — SensorDeviceClass.TIMESTAMP는 실제 datetime을 요구하므로
 # now()가 MagicMock이 아니라 진짜 timezone-aware datetime을 반환하게 한다.

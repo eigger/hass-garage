@@ -205,6 +205,52 @@ class TestAsyncStart:
         unsub()
 
 
+class _FakeEvent:
+    def __init__(self, old_state, new_state):
+        self.data = {"old_state": old_state, "new_state": new_state}
+
+
+class TestHandleStateChange:
+    """HA 재시작 직후 트리거 엔티티가 unknown/unavailable → 마지막 값으로 복구되는
+    상태 변화를 실제 값 변화로 오인해서 스퓨리어스 전송을 트리거하면 안 된다."""
+
+    def _forwarder_with_tracked_task(self):
+        forwarder = GarageTelemetryForwarder(
+            FakeHass(), api=None, entity_map={CONF_ENTITY_RPM: "sensor.rpm"}
+        )
+        created_tasks: list[object] = []
+        forwarder.hass = type(
+            "_Hass", (), {"async_create_task": staticmethod(created_tasks.append)}
+        )()
+        return forwarder, created_tasks
+
+    def test_restart_recovery_from_unknown_does_not_trigger(self):
+        forwarder, created_tasks = self._forwarder_with_tracked_task()
+        forwarder._handle_state_change(_FakeEvent(FakeState("unknown"), FakeState("1800")))
+        assert created_tasks == []
+
+    def test_restart_recovery_from_unavailable_does_not_trigger(self):
+        forwarder, created_tasks = self._forwarder_with_tracked_task()
+        forwarder._handle_state_change(_FakeEvent(FakeState("unavailable"), FakeState("1800")))
+        assert created_tasks == []
+
+    def test_first_ever_state_change_with_no_old_state_does_not_trigger(self):
+        forwarder, created_tasks = self._forwarder_with_tracked_task()
+        forwarder._handle_state_change(_FakeEvent(None, FakeState("1800")))
+        assert created_tasks == []
+
+    def test_value_disappearing_to_unavailable_does_not_trigger(self):
+        forwarder, created_tasks = self._forwarder_with_tracked_task()
+        forwarder._handle_state_change(_FakeEvent(FakeState("1800"), FakeState("unavailable")))
+        assert created_tasks == []
+
+    def test_real_value_change_still_triggers(self):
+        forwarder, created_tasks = self._forwarder_with_tracked_task()
+        forwarder._handle_state_change(_FakeEvent(FakeState("1800"), FakeState("2000")))
+        assert len(created_tasks) == 1
+        created_tasks[0].close()  # 실제로 스케줄되지 않은 코루틴이므로 명시적으로 닫는다.
+
+
 class _FakeApiOk:
     def __init__(self):
         self.calls = 0

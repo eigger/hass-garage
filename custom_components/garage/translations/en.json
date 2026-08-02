@@ -68,6 +68,14 @@
       "vehicle_location": {
         "name": "Location"
       }
+    },
+    "button": {
+      "push_now": {
+        "name": "Push now"
+      },
+      "refresh_now": {
+        "name": "Refresh now"
+      }
     }
   }
 }

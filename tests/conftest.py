@@ -73,6 +73,7 @@ for _mod in [
     "homeassistant.helpers.entity",
     "homeassistant.helpers.entity_platform",
     "homeassistant.components",
+    "homeassistant.components.button",
     "homeassistant.components.device_tracker",
     "homeassistant.components.sensor",
 ]:

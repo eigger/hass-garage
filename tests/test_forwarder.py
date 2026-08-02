@@ -1,6 +1,7 @@
 """GarageTelemetryForwarder(push: HA → Garage) 단위 테스트."""
 
 import asyncio
+import time
 from datetime import datetime
 
 from custom_components.garage import GarageTelemetryForwarder, _to_float
@@ -267,6 +268,38 @@ class TestAsyncPush:
         _run(_scenario())
 
         assert order == ["start-1", "end-1", "start-2", "end-2"]
+
+
+class TestPushNow:
+    """"지금 전송" 버튼(async_push_now)이 디바운스를 무시하고 바로 나가는지 검증한다."""
+
+    def test_pushes_immediately_even_right_after_a_previous_push(self):
+        api = _FakeApiOk()
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=api, entity_map={})
+        forwarder._last_push_monotonic = time.monotonic()  # 방금 막 보낸 것처럼 설정
+
+        _run(forwarder.async_push_now())
+
+        assert api.calls == 1
+        assert forwarder.last_push_ok is True
+
+    def test_cancels_a_pending_delayed_push(self):
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=_FakeApiOk(), entity_map={})
+        cancelled = []
+        forwarder._unsub_call_later = lambda: cancelled.append(True)
+
+        _run(forwarder.async_push_now())
+
+        assert cancelled == [True]
+        assert forwarder._unsub_call_later is None
+
+    def test_updates_debounce_timestamp_so_a_following_trigger_is_debounced(self):
+        forwarder = GarageTelemetryForwarder(FakeHass(), api=_FakeApiOk(), entity_map={})
+        assert forwarder._last_push_monotonic is None
+
+        _run(forwarder.async_push_now())
+
+        assert forwarder._last_push_monotonic is not None
 
 
 class TestScheduleDebounce:

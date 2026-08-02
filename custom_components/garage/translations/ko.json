@@ -68,6 +68,14 @@
       "vehicle_location": {
         "name": "위치"
       }
+    },
+    "button": {
+      "push_now": {
+        "name": "지금 전송"
+      },
+      "refresh_now": {
+        "name": "지금 새로고침"
+      }
     }
   }
 }

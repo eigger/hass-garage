@@ -49,6 +49,7 @@ from .coordinator import GarageRemindersCoordinator, GarageStatusCoordinator
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS: list[Platform] = [
+    Platform.BUTTON,
     Platform.DEVICE_TRACKER,
     Platform.SENSOR,
 ]
@@ -164,6 +165,19 @@ class GarageTelemetryForwarder:
             return
         self._last_push_monotonic = now
         self.hass.async_create_task(self._async_push())
+
+    async def async_push_now(self) -> None:
+        """디바운스 대기 없이 지금 즉시 한 번 전송한다 — "지금 전송" 버튼용.
+
+        대기 중인 지연 전송이 있으면 취소한다(어차피 이 전송으로 대체되므로 중복 전송
+        방지). 디바운스 타임스탬프도 방금 보낸 걸로 갱신해서, 버튼을 누른 직후 바로
+        이어지는 실제 트리거가 불필요하게 또 전송하지 않게 한다.
+        """
+        if self._unsub_call_later is not None:
+            self._unsub_call_later()
+            self._unsub_call_later = None
+        self._last_push_monotonic = time.monotonic()
+        await self._async_push()
 
     async def _async_push(self) -> None:
         # 락으로 실제 전송을 직렬화한다 — 락 획득 순서(FIFO)대로 보내지므로, 여러 push가

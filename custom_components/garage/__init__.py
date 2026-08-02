@@ -24,7 +24,7 @@ from datetime import datetime
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import Platform
+from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN, Platform
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.event import async_call_later, async_track_state_change_event
@@ -123,6 +123,18 @@ class GarageTelemetryForwarder:
 
     @callback
     def _handle_state_change(self, event: Event[EventStateChangedData]) -> None:
+        old_state = event.data["old_state"]
+        new_state = event.data["new_state"]
+
+        # HA 재시작 직후에는 트리거 엔티티가 "알 수 없음/사용 불가"였다가 원본 통합구성요소가
+        # 다시 붙으면서 마지막 값으로 바뀌는 게 실제 상태 변화처럼 이벤트가 발생한다 — 차량
+        # 값이 실제로 바뀐 게 아니라 그냥 엔티티가 복구된 것뿐이므로 전송을 트리거하지 않는다.
+        # 반대로 값이 사라지는(unknown/unavailable로 가는) 경우도 보낼 의미가 없으니 제외한다.
+        if old_state is None or old_state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            return
+        if new_state is None or new_state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            return
+
         self._async_schedule_push()
 
     @callback

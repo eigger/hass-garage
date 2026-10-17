@@ -111,9 +111,7 @@ class GarageConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=_sensor_options_schema(),
         )
 
-    async def async_step_reauth(
-        self, entry_data: dict[str, Any]
-    ) -> ConfigFlowResult:
+    async def async_step_reauth(self, entry_data: dict[str, Any]) -> ConfigFlowResult:
         """Handle re-authentication when the apiToken becomes invalid."""
         return await self.async_step_reauth_confirm()
 
@@ -153,6 +151,13 @@ class GarageConfigFlow(ConfigFlow, domain=DOMAIN):
         return GarageOptionsFlow()
 
 
+def _optional_entity(key: str, current: dict[str, Any]) -> vol.Optional:
+    """Build an optional entity selector key without an invalid empty-string default."""
+    if value := current.get(key):
+        return vol.Optional(key, description={"suggested_value": value})
+    return vol.Optional(key)
+
+
 def _sensor_options_schema(current: dict[str, Any] | None = None) -> vol.Schema:
     """Build entity selector schema for sensor mapping.
 
@@ -165,26 +170,21 @@ def _sensor_options_schema(current: dict[str, Any] | None = None) -> vol.Schema:
         current = {}
     return vol.Schema(
         {
-            vol.Optional(
-                CONF_ENTITY_LOCATION,
-                default=current.get(CONF_ENTITY_LOCATION, ""),
-            ): EntitySelector(EntitySelectorConfig(domain="device_tracker")),
-            vol.Optional(
-                CONF_ENTITY_RPM,
-                default=current.get(CONF_ENTITY_RPM, ""),
-            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
-            vol.Optional(
-                CONF_ENTITY_SPEED,
-                default=current.get(CONF_ENTITY_SPEED, ""),
-            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
-            vol.Optional(
-                CONF_ENTITY_FUEL_LEVEL,
-                default=current.get(CONF_ENTITY_FUEL_LEVEL, ""),
-            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
-            vol.Optional(
-                CONF_ENTITY_ODOMETER,
-                default=current.get(CONF_ENTITY_ODOMETER, ""),
-            ): EntitySelector(EntitySelectorConfig(domain="sensor")),
+            _optional_entity(CONF_ENTITY_LOCATION, current): EntitySelector(
+                EntitySelectorConfig(domain="device_tracker")
+            ),
+            _optional_entity(CONF_ENTITY_RPM, current): EntitySelector(
+                EntitySelectorConfig(domain="sensor")
+            ),
+            _optional_entity(CONF_ENTITY_SPEED, current): EntitySelector(
+                EntitySelectorConfig(domain="sensor")
+            ),
+            _optional_entity(CONF_ENTITY_FUEL_LEVEL, current): EntitySelector(
+                EntitySelectorConfig(domain="sensor")
+            ),
+            _optional_entity(CONF_ENTITY_ODOMETER, current): EntitySelector(
+                EntitySelectorConfig(domain="sensor")
+            ),
             vol.Optional(
                 CONF_PUSH_INTERVAL_SECONDS,
                 default=current.get(

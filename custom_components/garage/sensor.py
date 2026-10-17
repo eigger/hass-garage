@@ -119,7 +119,11 @@ class GarageLastPushAtSensor(SensorEntity):
 
     @property
     def icon(self) -> str:
-        return "mdi:alert-circle" if self._forwarder.last_push_ok is False else "mdi:upload"
+        return (
+            "mdi:alert-circle"
+            if self._forwarder.last_push_ok is False
+            else "mdi:upload"
+        )
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:

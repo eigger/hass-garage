@@ -1,0 +1,16 @@
+name: Validate
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "47 4 * * 1"
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  validate:
+    uses: eigger/hass-repo-standards/.github/workflows/validate-integration.yml@8bf07f496b4688f64d71980e2c36696751be91fb # reviewed standards commit

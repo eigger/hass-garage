@@ -9,9 +9,11 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from aiohttp import ClientError, ClientSession
+from aiohttp import ClientError, ClientSession, ClientTimeout
 
 _LOGGER = logging.getLogger(__name__)
+
+DEFAULT_TIMEOUT = ClientTimeout(total=15)
 
 
 class GarageError(Exception):
@@ -59,21 +61,44 @@ class GarageApi:
         url = f"{self._host}/api/ingest/telemetry"
         try:
             async with self._session.post(
-                url, headers=self._headers, json=body
+                url,
+                headers=self._headers,
+                json=body,
+                timeout=DEFAULT_TIMEOUT,
             ) as resp:
                 if resp.status == 401:
                     raise GarageAuthError("Garage rejected the API token")
                 resp.raise_for_status()
-        except ClientError as err:
-            raise GarageConnectionError(f"Garage request failed: {err}") from err
+        except GarageAuthError:
+            raise
+        except (ClientError, ValueError, TimeoutError) as err:
+            # 네트워크 예외 문자열에 URL·인증 헤더·응답 세부사항이 포함될 수 있으므로 예외 타입만 남긴다.
+            detail = (
+                "timed out (TimeoutError)"
+                if isinstance(err, TimeoutError)
+                else type(err).__name__
+            )
+            raise GarageConnectionError(f"Garage request failed: {detail}") from None
 
     async def _get(self, path: str) -> Any:
         url = f"{self._host}{path}"
         try:
-            async with self._session.get(url, headers=self._headers) as resp:
+            async with self._session.get(
+                url,
+                headers=self._headers,
+                timeout=DEFAULT_TIMEOUT,
+            ) as resp:
                 if resp.status == 401:
                     raise GarageAuthError("Garage rejected the API token")
                 resp.raise_for_status()
                 return await resp.json()
-        except ClientError as err:
-            raise GarageConnectionError(f"Garage request failed: {err}") from err
+        except GarageAuthError:
+            raise
+        except (ClientError, ValueError, TimeoutError) as err:
+            # 네트워크 예외 문자열에 URL·인증 헤더·응답 세부사항이 포함될 수 있으므로 예외 타입만 남긴다.
+            detail = (
+                "timed out (TimeoutError)"
+                if isinstance(err, TimeoutError)
+                else type(err).__name__
+            )
+            raise GarageConnectionError(f"Garage request failed: {detail}") from None

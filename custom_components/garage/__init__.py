@@ -74,6 +74,7 @@ class GarageTelemetryForwarder:
         self._api = api
         self._entity_map = entity_map
         self._push_interval_seconds = push_interval_seconds
+        self._unsub_state_change: callback | None = None
         self._unsub_call_later: callback | None = None
         self._last_push_monotonic: float | None = None
         self.last_push_at: datetime | None = None
@@ -115,12 +116,23 @@ class GarageTelemetryForwarder:
 
     def async_start(self) -> callback:
         """Start tracking state changes. Returns an unsubscribe callback."""
+        self.async_stop()
         trigger_ids = self._trigger_entity_ids
-        if not trigger_ids:
-            return lambda: None
-        return async_track_state_change_event(
-            self.hass, trigger_ids, self._handle_state_change
-        )
+        if trigger_ids:
+            self._unsub_state_change = async_track_state_change_event(
+                self.hass, trigger_ids, self._handle_state_change
+            )
+        return self.async_stop
+
+    @callback
+    def async_stop(self) -> None:
+        """Stop tracking state changes and cancel any pending delayed push."""
+        if self._unsub_state_change is not None:
+            self._unsub_state_change()
+            self._unsub_state_change = None
+        if self._unsub_call_later is not None:
+            self._unsub_call_later()
+            self._unsub_call_later = None
 
     @callback
     def _handle_state_change(self, event: Event[EventStateChangedData]) -> None:
@@ -187,9 +199,14 @@ class GarageTelemetryForwarder:
             try:
                 await self._api.async_send_telemetry(payload)
             except GarageError as err:
+                if self.last_push_ok is False:
+                    _LOGGER.debug("Failed to push telemetry to Garage: %s", err)
+                else:
+                    _LOGGER.warning("Failed to push telemetry to Garage: %s", err)
                 self.last_push_ok = False
-                _LOGGER.warning("Failed to push telemetry to Garage: %s", err)
             else:
+                if self.last_push_ok is False:
+                    _LOGGER.info("Telemetry push to Garage recovered")
                 self.last_push_ok = True
         # SensorDeviceClass.TIMESTAMP는 문자열이 아니라 timezone-aware datetime을
         # 요구한다 — dt_util.now()가 HA에 설정된 로컬 타임존을 반영한 aware datetime이다.
@@ -267,13 +284,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: GarageConfigEntry) -> bo
     reminders_coordinator = GarageRemindersCoordinator(hass, entry, api)
     await reminders_coordinator.async_config_entry_first_refresh()
 
-    entity_map = {key: entry.options[key] for key in FORWARD_ENTITY_KEYS if entry.options.get(key)}
+    entity_map = {
+        key: entry.options[key] for key in FORWARD_ENTITY_KEYS if entry.options.get(key)
+    }
     push_interval_seconds = entry.options.get(
         CONF_PUSH_INTERVAL_SECONDS, DEFAULT_PUSH_INTERVAL_SECONDS
     )
     forwarder = GarageTelemetryForwarder(hass, api, entity_map, push_interval_seconds)
-    unsub = forwarder.async_start()
-    entry.async_on_unload(unsub)
 
     entry.runtime_data = GarageRuntimeData(
         api=api,
@@ -283,6 +300,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: GarageConfigEntry) -> bo
     )
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    entry.async_on_unload(forwarder.async_start())
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     return True
 

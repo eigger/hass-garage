@@ -40,7 +40,12 @@ def test_only_location_is_excluded_from_trigger():
 
 
 def test_rpm_speed_fuel_odometer_are_not_excluded_from_trigger():
-    for key in (CONF_ENTITY_RPM, CONF_ENTITY_SPEED, CONF_ENTITY_FUEL_LEVEL, CONF_ENTITY_ODOMETER):
+    for key in (
+        CONF_ENTITY_RPM,
+        CONF_ENTITY_SPEED,
+        CONF_ENTITY_FUEL_LEVEL,
+        CONF_ENTITY_ODOMETER,
+    ):
         assert key not in TRIGGER_EXCLUDED_KEYS
 
 

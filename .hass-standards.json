@@ -1,0 +1,15 @@
+{
+  "repository": "eigger/hass-garage",
+  "default_branch": "master",
+  "domain": "garage",
+  "hacs": "custom",
+  "release": true,
+  "readmes": [
+    "README.md",
+    "README.ko.md"
+  ],
+  "installation_links": {
+    "README.md": "#installation",
+    "README.ko.md": "#설치"
+  }
+}

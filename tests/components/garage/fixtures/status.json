@@ -1,0 +1,10 @@
+{
+  "id": "veh-1",
+  "name": "My Car",
+  "odometer": 12345.0,
+  "fuelLevel": 55.0,
+  "speed": 0.0,
+  "latitude": 37.5665,
+  "longitude": 126.978,
+  "locationUpdatedAt": "2026-10-17T12:00:00Z"
+}

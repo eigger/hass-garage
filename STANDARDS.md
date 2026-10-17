@@ -2,19 +2,20 @@
 
 - 표준: https://github.com/eigger/hass-repo-standards/tree/8bf07f496b4688f64d71980e2c36696751be91fb
 - 참조 커밋 SHA: `8bf07f496b4688f64d71980e2c36696751be91fb` (착수 시 실제 원격 main 확인)
-- 채택 작업일: 2026-10-18
+- 채택 작업일: 2026-10-18; 구현 `master` 반영·정확한 SHA 원격 검증·중앙 구현/검증 종료 보고 완료
 - profile: integration / ha (실제 HA fixture·통합 로딩 필수)
 - 실제 기본 브랜치: `master`; domain: `garage`
 - 적용 점검표: [ADOPTION_CHECKLIST.md](ADOPTION_CHECKLIST.md)
 - 중앙 현황표: https://github.com/eigger/hass-repo-standards/blob/main/docs/adoption-status.md
 - 조율 / 구현 / 독립 리뷰·검증 담당: 조율 `root` · 구현 `garage_implementation` · 독립 리뷰 `garage_review`
-- 중앙 현황 갱신일: 2026-10-18 (시작 등록 [`e30cd06`](https://github.com/eigger/hass-repo-standards/commit/e30cd06))
+- 중앙 현황 갱신: 시작 등록 [`e30cd06`](https://github.com/eigger/hass-repo-standards/commit/e30cd06a3465a7b9f0b0977a47b4a269cf775274) 및 구현·검증 종료 보고 [`d665b57`](https://github.com/eigger/hass-repo-standards/commit/d665b57f7ff28bf81752500abb5d8ed52f99a3a3) 완료
 - 시작 대상 커밋: `f7f88a1ca828b94b0cb2b54c223f550cb88db3f1`
+- 구현 대상 커밋: [`f0e67cde683812d3fff062a9532ff33874a5a967`](https://github.com/eigger/hass-garage/commit/f0e67cde683812d3fff062a9532ff33874a5a967)
 - 테스트 경로: `tests/components/garage/`
 - 변경 전 지원 최소 HA / 선언 근거: `2025.3.0` (`hacs.json` 선언; `manifest.json` 및 기존 `README.md`에 별도 상충 선언 없음)
 - 적용 후 지원 최소 HA: `2025.3.0` 보존 (통합 버전 `1.3.0` 보존)
-- current HA 테스트 환경: Python 3.14.5 (원격 3.14) / HA `2026.10.2` / `pytest-homeassistant-custom-component==0.13.373` (`requirements_test.txt`)
-- 최소 HA 검증 환경: Python 3.13.14 (원격 3.13) / HA `2025.3.0` / `pytest-homeassistant-custom-component==0.13.221` (`requirements_test_min.txt`)
+- current HA 테스트 환경: 로컬 Python `3.14.5` · 원격 Python `3.14.8` / HA `2026.10.2` / `pytest-homeassistant-custom-component==0.13.373` (`requirements_test.txt`)
+- 최소 HA 검증 환경: 로컬 Python `3.13.14` · 원격 Python `3.13.16` / HA `2025.3.0` / `pytest-homeassistant-custom-component==0.13.221` (`requirements_test_min.txt`)
 - 최소 package 검증: 해당 없음 (`manifest.requirements=[]`)
 
 ## 검증 환경과 경계
@@ -29,6 +30,15 @@ domain(`garage`), entry schema(`VERSION = 1`), unique ID(`{entry_id}_due_reminde
 - `config_flow.py`: 옵션/센서 선택 스키마에서 선택하지 않은 `EntitySelector` 필드에 빈 문자열 기본값(`default=""`)을 넣지 않고 기존 설정값이 있을 때만 `suggested_value`를 제공하도록 수정해 실제 HA selector 검증을 통과(`HA-04`).
 
 `test_supported_environment.py`는 최소 테스트 HA가 `hacs.json`의 지원 하한(`2025.3.0`)과 정확히 일치하고 현재 테스트 HA(`2026.10.2`)가 그 하한 이상인지, 그리고 실제 설치된 HA와 플러그인이 각 환경의 정확한 requirements와 일치하는지 검증합니다. 최소 환경은 HA 2025.3.0이 고정한 `aiohttp==3.11.13`과 [당시 공식 Bluetooth manifest](https://github.com/home-assistant/core/blob/2025.3.0/homeassistant/components/bluetooth/manifest.json)의 6개 helper 버전을 `constraints/homeassistant-min.txt`에 고정합니다. Dependabot의 `exclude-paths`로 역사적 최소 requirements와 constraints를 자동 갱신에서 제외합니다.
+
+## 게시와 원격 검증
+
+- 구현 `master` 커밋: [`f0e67cde683812d3fff062a9532ff33874a5a967`](https://github.com/eigger/hass-garage/commit/f0e67cde683812d3fff062a9532ff33874a5a967)
+- [Tests `39046204956`](https://github.com/eigger/hass-garage/actions/runs/39046204956): `current` (`Python 3.14.8 / HA 2026.10.2 / plugin 0.13.373 / aiohttp 3.14.5`) 79 passed in 2.19s, `minimum-ha` (`Python 3.13.16 / HA 2025.3.0 / plugin 0.13.221 / aiohttp 3.11.13`) 79 passed in 2.94s (양쪽 `0 skipped, 0 warnings`, `pip check` 및 lint 2개 job 모두 PASS)
+- [Validate `39046204905`](https://github.com/eigger/hass-garage/actions/runs/39046204905): HACS 9/9 checks (brands 포함, ignore 없음) 및 Hassfest 모두 PASS
+- 중앙 구현·검증 종료 보고: [`d665b57f7ff28bf81752500abb5d8ed52f99a3a3`](https://github.com/eigger/hass-repo-standards/commit/d665b57f7ff28bf81752500abb5d8ed52f99a3a3)
+
+위 CI는 구현 커밋 `f0e67cde683812d3fff062a9532ff33874a5a967`의 실제 검증 결과입니다. 이 2문서 마감 커밋은 게시 후 독립 검증 담당이 자동 CI를 확인하고 중앙 최신 현황표에 최종 문서 커밋·CI와 완료 상태를 반영합니다.
 
 ## 예외
 

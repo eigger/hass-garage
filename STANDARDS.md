@@ -1,7 +1,7 @@
 # 적용한 공통 규칙
 
 - 표준: https://github.com/eigger/hass-repo-standards/tree/8bf07f496b4688f64d71980e2c36696751be91fb
-- 참조 커밋 SHA: `8bf07f496b4688f64d71980e2c36696751be91fb` (착수 시 실제 원격 main 확인)
+- 참조 커밋 SHA: `8bf07f496b4688f64d71980e2c36696751be91fb`
 - 채택 작업일: 2026-10-18; 구현 `master` 반영·정확한 SHA 원격 검증·중앙 구현/검증 종료 보고 완료
 - profile: integration / ha (실제 HA fixture·통합 로딩 필수)
 - 실제 기본 브랜치: `master`; domain: `garage`
@@ -47,3 +47,12 @@ domain(`garage`), entry schema(`VERSION = 1`), unique ID(`{entry_id}_due_reminde
 - `master` branch protection 조회는 `404 (Branch not protected)`, rulesets는 빈 배열(`[]`)이므로 기존 required checks를 대기 상태로 만드는 설정 변경은 없습니다.
 - 로컬 브랜드 아이콘(`custom_components/garage/brand/icon.png` 256×256, `icon@2x.png` 512×512)은 기존 리포 자산을 그대로 유지합니다. 로컬 brand의 HA UI 표시는 HA 2026.3부터 지원되므로 지원 최소 HA 2025.3.0에서의 UI 표시나 실제 HA frontend 렌더링 검증을 주장하지 않습니다.
 - 운영 Garage 서버·실물 차량 OBD/GPS 환경과의 실물 검증은 이번 작업에서 수행하지 않았습니다. 채택 작업만으로 태그나 GitHub Release를 새로 생성하지 않습니다.
+
+- Reviewed release standards SHA: `fd4162c0b93fbe8e109f99c787773ae09ba157e1`
+
+
+## 2026-10-23 ZIP release and Downloads update
+
+Base commit: `ebca866e31219836fb6c976594d18c3d4bf1fbea`. HACS remains Custom. `hacs.json` now selects `garage.zip`; publishing the next release builds and attaches that integration ZIP through the pinned central action. Analytics Usage is replaced by Downloads. The archive contains tracked integration files at its root. No existing release/tag/assets are modified.
+
+Implementation and review: root; generated release caller reuses the independently reviewed central ZIP contract. Support minimum, manifest, code, dependencies, README body and prior adoption exceptions are preserved. Verification evidence is recorded in ADOPTION_CHECKLIST.md; this scoped update does not establish full standards compliance.

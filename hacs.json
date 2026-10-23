@@ -1,4 +1,6 @@
 {
   "name": "Garage 차량관리",
-  "homeassistant": "2025.3.0"
+  "homeassistant": "2025.3.0",
+  "zip_release": true,
+  "filename": "garage.zip"
 }

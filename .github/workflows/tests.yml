@@ -1,11 +1,10 @@
 name: Tests
-on:
+'on':
   push:
-    branches: [master]
-  pull_request:
-  workflow_dispatch:
-  schedule:
-    - cron: "29 4 * * 1"
+    branches:
+    - master
+  pull_request: null
+  workflow_dispatch: null
 permissions:
   contents: read
 concurrency:
@@ -13,8 +12,9 @@ concurrency:
   cancel-in-progress: true
 jobs:
   current:
-    uses: eigger/hass-repo-standards/.github/workflows/python-tests.yml@8bf07f496b4688f64d71980e2c36696751be91fb # reviewed standards commit
+    uses: eigger/hass-repo-standards/.github/workflows/python-tests.yml@1863343638014adb8a4001afc8fddc1a27dc500f # reviewed standards commit
     with:
+      standards-ref: 1863343638014adb8a4001afc8fddc1a27dc500f
       domain: garage
       python-versions: '["3.14"]'
       lint-python-version: '3.14'
@@ -24,8 +24,9 @@ jobs:
       ha-components: 'button device_tracker sensor'
       pytest-args: tests/components/garage/ -v
   minimum-ha:
-    uses: eigger/hass-repo-standards/.github/workflows/python-tests.yml@8bf07f496b4688f64d71980e2c36696751be91fb # reviewed standards commit
+    uses: eigger/hass-repo-standards/.github/workflows/python-tests.yml@1863343638014adb8a4001afc8fddc1a27dc500f # reviewed standards commit
     with:
+      standards-ref: 1863343638014adb8a4001afc8fddc1a27dc500f
       domain: garage
       python-versions: '["3.13"]'
       lint-python-version: '3.14'

@@ -11,5 +11,27 @@
   "installation_links": {
     "README.md": "#installation",
     "README.ko.md": "#설치"
+  },
+  "readme": {
+    "title": "Garage Home Assistant Integration (hass-garage)",
+    "descriptions": {
+      "en": "A Home Assistant custom integration for bidirectional vehicle telemetry and maintenance reminders with a self-hosted Garage vehicle management server.",
+      "ko": "셀프호스팅 Garage 차량관리 서버와 차량 텔레메트리·정비 알림을 양방향으로 연결하는 Home Assistant HACS 커스텀 통합구성요소입니다."
+    },
+    "issues": true,
+    "discussions": true,
+    "license_name": "MIT License",
+    "license_notices": {
+      "en": [],
+      "ko": []
+    },
+    "related_projects": []
+  },
+  "categories_review": {
+    "value": [
+      "vehicles_transport.cars_evs"
+    ],
+    "integration_type": null,
+    "source": "README Features describes car location/RPM/speed/fuel/odometer telemetry, vehicle maintenance reminders and per-vehicle API tokens. Category names verified against official Core taxonomy ec18d8b25d1ee39aa8b85a72a170e42bee33228c."
   }
 }

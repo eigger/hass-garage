@@ -1,7 +1,12 @@
 {
   "domain": "garage",
   "name": "Garage 차량관리",
-  "codeowners": ["@eigger"],
+  "categories": [
+    "vehicles_transport.cars_evs"
+  ],
+  "codeowners": [
+    "@eigger"
+  ],
   "config_flow": true,
   "documentation": "https://github.com/eigger/hass-garage",
   "iot_class": "local_polling",

@@ -1,5 +1,13 @@
 """Garage config entries and external HTTP boundary fixtures."""
 
+# <!-- hass-standards:domain-fixtures:start -->
+# Use pytest_homeassistant_custom_component.common.MockConfigEntry for
+# mock_config_entry when the integration uses config entries.
+# Define mock_client only when an external communication client is present.
+# Mock external communication boundaries, never Home Assistant core modules.
+# Keep integration-specific fixtures below this managed block.
+# <!-- hass-standards:domain-fixtures:end -->
+
 import json
 from pathlib import Path
 
@@ -88,3 +96,9 @@ def entity_id(hass):
         return result
 
     return lookup
+
+
+@pytest.fixture
+def mock_config_entry(entry):
+    """Expose the existing real HA entry through the shared fixture role."""
+    return entry

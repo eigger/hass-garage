@@ -1,4 +1,9 @@
-# Garage 차량관리 Home Assistant Integration (hass-garage)
+<!-- hass-standards:header:start -->
+# Garage Home Assistant Integration (hass-garage)
+
+셀프호스팅 Garage 차량관리 서버와 차량 텔레메트리·정비 알림을 양방향으로 연결하는 Home Assistant HACS 커스텀 통합구성요소입니다.
+
+[English](README.md) | **한국어**
 
 <!-- hass-standards:badges:start -->
 [![Release](https://img.shields.io/github/v/release/eigger/hass-garage?style=flat)](https://github.com/eigger/hass-garage/releases)
@@ -9,10 +14,10 @@
 [![License](https://img.shields.io/github/license/eigger/hass-garage?style=flat)](LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/eigger/hass-garage/total?style=flat&color=41BDF5&label=Downloads)](https://github.com/eigger/hass-garage/releases)
 <!-- hass-standards:badges:end -->
+<!-- hass-standards:header:end -->
 
 셀프호스팅 차량관리 서버 [Garage](https://github.com/eigger/garage)와 Home Assistant를 **YAML 편집 없이** 양방향으로 연결하는 커스텀 통합구성요소입니다.
 
-[English](README.md) | [한국어](README.ko.md)
 
 ## 주요 기능
 
@@ -25,6 +30,10 @@
 Home Assistant **2025.3.0 이상**, 네트워크로 접근 가능한 셀프호스팅 [Garage](https://github.com/eigger/garage) 서버와 차량별 API 토큰(**차량 상세 → OBD & GPS**)이 필요합니다. 로컬 HTTP/HTTPS를 사용하며 Bluetooth 프록시는 필요하지 않습니다.
 
 ## 설치
+
+<!-- hass-standards:installation:start -->
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=eigger&repository=hass-garage&category=integration)
+<!-- hass-standards:installation:end -->
 
 1. HACS의 사용자 지정 저장소에 `eigger/hass-garage`를 **Integration**으로 추가합니다.
 2. 통합구성요소를 설치하고 Home Assistant를 재시작합니다.
@@ -53,6 +62,18 @@ target:
 | [개발과 테스트](docs/ko/development.md) | 실제 HA 테스트, 최소·최신 환경, 의존성과 실행 명령 |
 | [적용 기준](STANDARDS.md) · [체크리스트](ADOPTION_CHECKLIST.md) | 공통 규칙과 검증 기록 |
 
-## 지원과 라이선스
+<!-- hass-standards:support:start -->
+## 지원
 
-버그는 [GitHub Issues](https://github.com/eigger/hass-garage/issues)에 남겨주세요. 질문·사용법·아이디어는 [GitHub Discussions](https://github.com/eigger/hass-garage/discussions)를 이용하세요. [MIT 라이선스](LICENSE)를 따릅니다.
+- [Issues](https://github.com/eigger/hass-garage/issues): 버그를 신고하거나 기능을 요청하세요.
+- [Discussions](https://github.com/eigger/hass-garage/discussions): 질문하고 사용 경험을 공유하세요.
+<!-- hass-standards:support:end -->
+
+<!-- hass-standards:related-projects:start -->
+<!-- hass-standards:related-projects:end -->
+
+<!-- hass-standards:license:start -->
+## 라이선스
+
+[MIT License](LICENSE) 라이선스로 배포됩니다.
+<!-- hass-standards:license:end -->

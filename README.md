@@ -1,4 +1,9 @@
+<!-- hass-standards:header:start -->
 # Garage Home Assistant Integration (hass-garage)
+
+A Home Assistant custom integration for bidirectional vehicle telemetry and maintenance reminders with a self-hosted Garage vehicle management server.
+
+**English** | [한국어](README.ko.md)
 
 <!-- hass-standards:badges:start -->
 [![Release](https://img.shields.io/github/v/release/eigger/hass-garage?style=flat)](https://github.com/eigger/hass-garage/releases)
@@ -9,10 +14,10 @@
 [![License](https://img.shields.io/github/license/eigger/hass-garage?style=flat)](LICENSE)
 [![Downloads](https://img.shields.io/github/downloads/eigger/hass-garage/total?style=flat&color=41BDF5&label=Downloads)](https://github.com/eigger/hass-garage/releases)
 <!-- hass-standards:badges:end -->
+<!-- hass-standards:header:end -->
 
 A custom Home Assistant integration that connects a self-hosted [Garage](https://github.com/eigger/garage) vehicle management server with Home Assistant in **both directions without YAML configuration**.
 
-[English](README.md) | [한국어](README.ko.md)
 
 ## Features
 
@@ -25,6 +30,10 @@ A custom Home Assistant integration that connects a self-hosted [Garage](https:/
 Home Assistant **2025.3.0 or newer**, a reachable self-hosted [Garage](https://github.com/eigger/garage) server, and a per-vehicle API token (`Vehicle detail → OBD & GPS`). Uses local HTTP/HTTPS; no Bluetooth proxy is needed.
 
 ## Installation
+
+<!-- hass-standards:installation:start -->
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=eigger&repository=hass-garage&category=integration)
+<!-- hass-standards:installation:end -->
 
 1. Add `eigger/hass-garage` as a custom **Integration** repository in HACS.
 2. Install the integration and restart Home Assistant.
@@ -53,6 +62,18 @@ Only non-location changes (RPM, speed, fuel/battery level, odometer) trigger aut
 | [Development and tests](docs/development.md) | Actual HA tests, minimum/current environments, dependencies, and commands |
 | [Adopted standards](STANDARDS.md) · [Checklist](ADOPTION_CHECKLIST.md) | Common rules and verification records |
 
-## Support and license
+<!-- hass-standards:support:start -->
+## Support
 
-Report bugs through [GitHub Issues](https://github.com/eigger/hass-garage/issues). For questions, usage help, and ideas, use [GitHub Discussions](https://github.com/eigger/hass-garage/discussions). Licensed under [MIT](LICENSE).
+- [Issues](https://github.com/eigger/hass-garage/issues): Report bugs or request features.
+- [Discussions](https://github.com/eigger/hass-garage/discussions): Ask questions and share your experience.
+<!-- hass-standards:support:end -->
+
+<!-- hass-standards:related-projects:start -->
+<!-- hass-standards:related-projects:end -->
+
+<!-- hass-standards:license:start -->
+## License
+
+Released under the [MIT License](LICENSE).
+<!-- hass-standards:license:end -->

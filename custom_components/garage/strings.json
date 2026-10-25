@@ -2,55 +2,55 @@
   "config": {
     "step": {
       "user": {
-        "title": "Garage 연동",
-        "description": "셀프호스팅 중인 Garage 서버 주소와, 웹 UI **차량 상세 → OBD & GPS**에서 확인한 차량 API 토큰을 입력하세요.",
+        "title": "Garage",
+        "description": "Enter your self-hosted Garage server address and the vehicle API token from the web UI's **Vehicle detail → OBD & GPS** page.",
         "data": {
-          "host": "Garage 주소",
-          "api_token": "차량 API 토큰"
+          "host": "Garage host",
+          "api_token": "Vehicle API token"
         }
       },
       "sensors": {
-        "title": "전송할 센서 선택",
-        "description": "Garage로 전송할 HA 엔티티를 선택하세요. 전부 선택 사항이며, 비워두면 나중에 옵션에서 설정할 수 있습니다.",
+        "title": "Choose sensors to forward",
+        "description": "Pick the HA entities to send to Garage. All fields are optional — leave blank and configure later from options.",
         "data": {
-          "entity_location": "위치(device_tracker) — 위도/경도를 함께 갖고 있는 엔티티 하나만 고르면 됩니다",
-          "entity_rpm": "엔진 회전수(RPM) 센서",
-          "entity_speed": "속도 센서",
-          "entity_fuel_level": "연료/배터리 잔량 센서",
-          "entity_odometer": "주행거리 센서",
-          "push_interval_seconds": "최소 전송 간격(초) — RPM처럼 자주 바뀌는 값이라도 이 간격 안에서는 묶어서 한 번만 보냅니다"
+          "entity_location": "Location (device_tracker) — one entity that already carries both latitude and longitude",
+          "entity_rpm": "Engine RPM sensor",
+          "entity_speed": "Speed sensor",
+          "entity_fuel_level": "Fuel/battery level sensor",
+          "entity_odometer": "Odometer sensor",
+          "push_interval_seconds": "Minimum push interval (seconds) — even a fast-changing value like RPM is coalesced within this window"
         }
       },
       "reauth_confirm": {
-        "title": "Garage 재인증",
-        "description": "API 토큰이 더 이상 유효하지 않습니다. 새 토큰을 입력하세요.",
+        "title": "Reauthenticate Garage",
+        "description": "The API token is no longer valid. Enter a new one.",
         "data": {
-          "api_token": "차량 API 토큰"
+          "api_token": "Vehicle API token"
         }
       }
     },
     "error": {
-      "invalid_auth": "API 토큰이 올바르지 않습니다.",
-      "cannot_connect": "Garage 서버에 연결할 수 없습니다.",
-      "unknown": "알 수 없는 오류가 발생했습니다."
+      "invalid_auth": "The API token is invalid.",
+      "cannot_connect": "Failed to connect to the Garage server.",
+      "unknown": "An unexpected error occurred."
     },
     "abort": {
-      "already_configured": "이미 등록된 차량입니다.",
-      "reauth_successful": "재인증되었습니다."
+      "already_configured": "This vehicle is already configured.",
+      "reauth_successful": "Re-authentication was successful."
     }
   },
   "options": {
     "step": {
       "init": {
-        "title": "전송할 센서 선택",
-        "description": "위치가 아닌 값(RPM/속도/연료/주행거리 등)이 바뀔 때만 전송을 트리거하고, 그 시점의 최신 위치를 함께 실어 보냅니다. 전부 선택 사항이며, 비워두면 해당 항목은 보내지 않습니다.",
+        "title": "Choose sensors to forward",
+        "description": "Only non-location changes (e.g. RPM, speed, fuel, odometer) trigger a send; the latest location at that moment is included too. All fields are optional — leave one blank to skip it.",
         "data": {
-          "entity_location": "위치(device_tracker) — 위도/경도를 함께 갖고 있는 엔티티 하나만 고르면 됩니다",
-          "entity_rpm": "엔진 회전수(RPM) 센서",
-          "entity_speed": "속도 센서",
-          "entity_fuel_level": "연료/배터리 잔량 센서",
-          "entity_odometer": "주행거리 센서",
-          "push_interval_seconds": "최소 전송 간격(초) — RPM처럼 자주 바뀌는 값이라도 이 간격 안에서는 묶어서 한 번만 보냅니다"
+          "entity_location": "Location (device_tracker) — one entity that already carries both latitude and longitude",
+          "entity_rpm": "Engine RPM sensor",
+          "entity_speed": "Speed sensor",
+          "entity_fuel_level": "Fuel/battery level sensor",
+          "entity_odometer": "Odometer sensor",
+          "push_interval_seconds": "Minimum push interval (seconds) — even a fast-changing value like RPM is coalesced within this window"
         }
       }
     }
@@ -58,23 +58,23 @@
   "entity": {
     "sensor": {
       "due_reminders": {
-        "name": "지난·임박 리마인더"
+        "name": "Due & upcoming reminders"
       },
       "last_push_at": {
-        "name": "마지막 전송 시각"
+        "name": "Last push time"
       }
     },
     "device_tracker": {
       "vehicle_location": {
-        "name": "위치"
+        "name": "Location"
       }
     },
     "button": {
       "push_now": {
-        "name": "지금 전송"
+        "name": "Push now"
       },
       "refresh_now": {
-        "name": "지금 새로고침"
+        "name": "Refresh now"
       }
     }
   }

@@ -1,9 +1,8 @@
-"""Use the actual Home Assistant pytest fixtures."""
+"""Shared Home Assistant test configuration."""
 
 import pytest
 
 
 @pytest.fixture(autouse=True)
-def custom_integrations(enable_custom_integrations):
-    """Enable custom component loading for every integration test."""
-    yield
+def auto_enable_custom_integrations(enable_custom_integrations):
+    """Enable custom integrations for all tests."""

@@ -1,7 +1,7 @@
 # 적용한 공통 규칙
 
-- 표준: https://github.com/eigger/hass-repo-standards/tree/8bf07f496b4688f64d71980e2c36696751be91fb
-- 참조 커밋 SHA: `8bf07f496b4688f64d71980e2c36696751be91fb`
+- 표준: https://github.com/eigger/hass-repo-standards/tree/ca740d88b32fa5dcbc94c41fce2908450c76ed50
+- 참조 커밋 SHA: `ca740d88b32fa5dcbc94c41fce2908450c76ed50`
 - 채택 작업일: 2026-10-18; 구현 `master` 반영·정확한 SHA 원격 검증·중앙 구현/검증 종료 보고 완료
 - profile: integration / ha (실제 HA fixture·통합 로딩 필수)
 - 실제 기본 브랜치: `master`; domain: `garage`
@@ -48,11 +48,22 @@ domain(`garage`), entry schema(`VERSION = 1`), unique ID(`{entry_id}_due_reminde
 - 로컬 브랜드 아이콘(`custom_components/garage/brand/icon.png` 256×256, `icon@2x.png` 512×512)은 기존 리포 자산을 그대로 유지합니다. 로컬 brand의 HA UI 표시는 HA 2026.3부터 지원되므로 지원 최소 HA 2025.3.0에서의 UI 표시나 실제 HA frontend 렌더링 검증을 주장하지 않습니다.
 - 운영 Garage 서버·실물 차량 OBD/GPS 환경과의 실물 검증은 이번 작업에서 수행하지 않았습니다. 채택 작업만으로 태그나 GitHub Release를 새로 생성하지 않습니다.
 
-- Reviewed release standards SHA: `fd4162c0b93fbe8e109f99c787773ae09ba157e1`
-
-
+- Reviewed release standards SHA: `ca740d88b32fa5dcbc94c41fce2908450c76ed50`
 ## 2026-10-23 ZIP release and Downloads update
 
 Base commit: `ebca866e31219836fb6c976594d18c3d4bf1fbea`. HACS remains Custom. `hacs.json` now selects `garage.zip`; publishing the next release builds and attaches that integration ZIP through the pinned central action. Analytics Usage is replaced by Downloads. The archive contains tracked integration files at its root. No existing release/tag/assets are modified.
 
 Implementation and review: root; generated release caller reuses the independently reviewed central ZIP contract. Support minimum, manifest, code, dependencies, README body and prior adoption exceptions are preserved. Verification evidence is recorded in ADOPTION_CHECKLIST.md; this scoped update does not establish full standards compliance.
+
+## 2026-10-25 중앙 검사기 갱신
+
+- 검토한 중앙 main: `1863343638014adb8a4001afc8fddc1a27dc500f` (git ls-remote 확인). 이전 기본 기준 `8bf07f496b4688f64d71980e2c36696751be91fb`의 채택 이력은 위 기록을 보존합니다.
+- 모든 중앙 workflow/action pin과 reusable workflow의 standards-ref를 같은 검토 SHA로 맞춥니다. HACS-04는 actions/*의 full SHA 고정을 유지하면서 SHA 값 차이를 허용합니다.
+- Validate에 중앙 템플릿의 무조건 실행 standards job을 추가합니다. 기존 HACS/Hassfest와 HA test job 이름·입력은 보존하며, 기본 브랜치를 사용하는 중앙 실행 조건을 적용합니다.
+- 통합 코드·런타임 의존성·지원 최소·배포 버전은 이번 변경 대상이 아닙니다. 기존 채택 범위를 전체 완료로 바꾸지 않으며 실제 검증 결과와 남은 항목은 ADOPTION_CHECKLIST.md의 같은 날짜 기록을 참조합니다.
+
+
+### 2026-10-25 Standards 파일·표시 이름 분리
+
+- 기존 Validate의 중앙 검사 job을 `standards.yml`로 옮기고 workflow/job 표시 이름을 `Standards`로 줄였습니다. Validate의 HACS/Hassfest, 검사 항목·통과 기준·실행 단계·조건·권한은 유지합니다.
+- 위치 인식과 중앙 명명 안내를 맞춘 검토 소스: `ca740d88b32fa5dcbc94c41fce2908450c76ed50` ([중앙 PR #24](https://github.com/eigger/hass-repo-standards/pull/24), 현재 이 PR의 의존 변경). 이전 기준 `1863343638014adb8a4001afc8fddc1a27dc500f`의 검증 이력은 앞 기록으로 보존합니다. 모든 중앙 pin·standards-ref는 같은 새 검토 소스로 맞춥니다.

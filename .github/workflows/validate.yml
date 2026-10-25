@@ -1,11 +1,12 @@
 name: Validate
-on:
+'on':
   push:
-    branches: [master]
-  pull_request:
-  workflow_dispatch:
+    branches:
+    - master
+  pull_request: null
+  workflow_dispatch: null
   schedule:
-    - cron: "47 4 * * 1"
+  - cron: 23 3 * * 1
 permissions:
   contents: read
 concurrency:
@@ -13,4 +14,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   validate:
-    uses: eigger/hass-repo-standards/.github/workflows/validate-integration.yml@8bf07f496b4688f64d71980e2c36696751be91fb # reviewed standards commit
+    uses: eigger/hass-repo-standards/.github/workflows/validate-integration.yml@ca740d88b32fa5dcbc94c41fce2908450c76ed50 # reviewed standards commit
+    with:
+      # Reviewed official Core validator supports manifest categories.
+      hassfest-core-ref: ec18d8b25d1ee39aa8b85a72a170e42bee33228c

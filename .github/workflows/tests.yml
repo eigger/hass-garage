@@ -12,9 +12,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   current:
-    uses: eigger/hass-repo-standards/.github/workflows/python-tests.yml@v1.0.1 # reviewed standards commit
+    uses: eigger/hass-repo-standards/.github/workflows/python-tests.yml@v1.1.2 # reviewed standards commit
     with:
-      standards-ref: c9b4553184f9c27bdbe7bf8564eaf10153e9575b
       domain: garage
       python-versions: '["3.14"]'
       lint-python-version: '3.14'
@@ -24,9 +23,8 @@ jobs:
       ha-components: 'button device_tracker sensor'
       pytest-args: tests/components/garage/ -v
   minimum-ha:
-    uses: eigger/hass-repo-standards/.github/workflows/python-tests.yml@v1.0.1 # reviewed standards commit
+    uses: eigger/hass-repo-standards/.github/workflows/python-tests.yml@v1.1.2 # reviewed standards commit
     with:
-      standards-ref: c9b4553184f9c27bdbe7bf8564eaf10153e9575b
       domain: garage
       python-versions: '["3.13"]'
       lint-python-version: '3.14'

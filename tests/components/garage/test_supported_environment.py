@@ -25,13 +25,11 @@ def test_supported_environments_match_installed_home_assistant():
     current = _pinned_versions(root / "requirements_test.txt")
     minimum = _pinned_versions(root / "requirements_test_min.txt")
     assert minimum["homeassistant"] == support_minimum
-    assert Version(current["homeassistant"]) >= Version(support_minimum)
     actual = version("homeassistant")
-    expected = next(
-        environment
-        for environment in (current, minimum)
-        if environment["homeassistant"] == actual
-    )
+    # The plugin pins the exact HA, so the current requirements list only the plugin.
+    assert current.get("homeassistant", actual) == actual or actual == support_minimum
+    assert Version(actual) >= Version(support_minimum)
+    expected = minimum if actual == minimum["homeassistant"] else current
     assert (
         version("pytest-homeassistant-custom-component")
         == expected["pytest-homeassistant-custom-component"]

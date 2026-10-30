@@ -12,7 +12,7 @@ A Home Assistant custom integration for bidirectional vehicle telemetry and main
 [![Tests](https://img.shields.io/github/actions/workflow/status/eigger/hass-garage/tests.yml?branch=master&style=flat&label=Tests)](https://github.com/eigger/hass-garage/actions/workflows/tests.yml)
 [![Validate](https://img.shields.io/github/actions/workflow/status/eigger/hass-garage/validate.yml?branch=master&style=flat&label=Validate)](https://github.com/eigger/hass-garage/actions/workflows/validate.yml)
 [![License](https://img.shields.io/github/license/eigger/hass-garage?style=flat)](LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/eigger/hass-garage/total?style=flat&color=41BDF5&label=Downloads)](https://github.com/eigger/hass-garage/releases)
+[![Downloads](https://img.shields.io/github/downloads/eigger/hass-garage/latest/total?style=flat&color=41BDF5&label=Downloads)](https://github.com/eigger/hass-garage/releases)
 <!-- hass-standards:badges:end -->
 <!-- hass-standards:header:end -->
 

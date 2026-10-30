@@ -78,6 +78,6 @@ Replace `button.my_car_push_now` and `button.my_car_refresh_now` with the actual
 - If `Last push time` (`last_push_at`) or `Push now` (`push_now`) is `unavailable`, open **Configure** on the integration entry and select at least one entity to forward. If only `entity_location` is selected, automatic state-change pushes will not fire because location is excluded from triggers — either add a trigger sensor (RPM, speed, fuel, odometer) or press **Push now** via an automation.
 - Remove API tokens, private server URLs, license plates, VINs, and exact GPS coordinates before sharing logs or opening a GitHub Issue. Automated tests run against real Home Assistant fixtures with mocked HTTP responses and do not replace verification against your live Garage server.
 
-## Usage badge
+## Downloads badge
 
-The Usage badge reports installations participating in Home Assistant Analytics, rather than all installations. It stays linked to live analytics data even when this integration has no published count yet; an unavailable value does not mean zero installations.
+The Downloads badge counts GitHub release asset downloads of the current release, not active installations or unique users. A missing release or a failed request does not mean zero downloads.

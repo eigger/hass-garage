@@ -58,7 +58,7 @@ Only non-location changes (RPM, speed, fuel/battery level, odometer) trigger aut
 
 | Guide | Contents |
 |---|---|
-| [User guide](docs/user-guide.md) | Setup and API token, entity mapping, debounce and ordering, pull sensors, troubleshooting, Usage badge meaning |
+| [User guide](docs/user-guide.md) | Setup and API token, entity mapping, debounce and ordering, pull sensors, troubleshooting, Downloads badge meaning |
 | [Development and tests](docs/development.md) | Actual HA tests, minimum/current environments, dependencies, and commands |
 | [Adopted standards](STANDARDS.md) · [Checklist](ADOPTION_CHECKLIST.md) | Common rules and verification records |
 

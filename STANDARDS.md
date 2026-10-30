@@ -1,9 +1,9 @@
 # 적용한 공통 규칙
 
-- 표준: https://github.com/eigger/hass-repo-standards/tree/v1.1.4
-- 참조 커밋 SHA: a90531d05613597632a4c10c11ce1dbc45e0bab6
-- Standards release: v1.1.4
-- Resolved standards SHA: a90531d05613597632a4c10c11ce1dbc45e0bab6
+- 표준: https://github.com/eigger/hass-repo-standards/tree/v1.1.5
+- 참조 커밋 SHA: f56987f7f765a774c926fb8005fe5df68bb32451
+- Standards release: v1.1.5
+- Resolved standards SHA: f56987f7f765a774c926fb8005fe5df68bb32451
 - 채택 작업일: 2026-10-18; 구현 `master` 반영·정확한 SHA 원격 검증·중앙 구현/검증 종료 보고 완료
 - profile: integration / ha (실제 HA fixture·통합 로딩 필수)
 - 실제 기본 브랜치: `master`; domain: `garage`

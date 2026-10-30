@@ -12,7 +12,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/eigger/hass-garage/tests.yml?branch=master&style=flat&label=Tests)](https://github.com/eigger/hass-garage/actions/workflows/tests.yml)
 [![Validate](https://img.shields.io/github/actions/workflow/status/eigger/hass-garage/validate.yml?branch=master&style=flat&label=Validate)](https://github.com/eigger/hass-garage/actions/workflows/validate.yml)
 [![License](https://img.shields.io/github/license/eigger/hass-garage?style=flat)](LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/eigger/hass-garage/total?style=flat&color=41BDF5&label=Downloads)](https://github.com/eigger/hass-garage/releases)
+[![Downloads](https://img.shields.io/github/downloads/eigger/hass-garage/latest/total?style=flat&color=41BDF5&label=Downloads)](https://github.com/eigger/hass-garage/releases)
 <!-- hass-standards:badges:end -->
 <!-- hass-standards:header:end -->
 
@@ -58,7 +58,7 @@ target:
 
 | 안내 | 내용 |
 |---|---|
-| [사용 안내](docs/ko/user-guide.md) | 설치·API 토큰, 센서 매핑, 디바운스·직렬화, 수신 센서, 문제 해결, Usage 배지 의미 |
+| [사용 안내](docs/ko/user-guide.md) | 설치·API 토큰, 센서 매핑, 디바운스·직렬화, 수신 센서, 문제 해결, Downloads 배지 의미 |
 | [개발과 테스트](docs/ko/development.md) | 실제 HA 테스트, 최소·최신 환경, 의존성과 실행 명령 |
 | [적용 기준](STANDARDS.md) · [체크리스트](ADOPTION_CHECKLIST.md) | 공통 규칙과 검증 기록 |
 

@@ -1,10 +1,10 @@
 """Generate Home Assistant brand images for Garage.
 
-The artwork is an original geometric brand mark on a dark navy rounded square:
-a cyan garage roof and bay framing a crisp white front-facing vehicle silhouette
-with golden LED headlights and wireless telemetry arcs. Drawn from geometric
-primitives at 4x scale and downsampled, so no source image, external font file,
-or network access is needed. Run with Pillow 12.3.0 for reproducible PNGs.
+The artwork preserves the original Garage side-profile vehicle silhouette on a
+deep forest-green rounded square, drawn from geometric primitives at 4x scale
+and downsampled, with a matching forest-green Garage wordmark for the landscape
+logo. No source image, external font file, or network access is needed. Run with
+Pillow 12.3.0 for reproducible PNGs.
 """
 
 from __future__ import annotations
@@ -17,12 +17,9 @@ from PIL import Image, ImageDraw, ImageFont
 BRAND = Path(__file__).resolve().parents[1] / "custom_components/garage/brand"
 SIZE = 512
 SCALE = 4
-NAVY = "#1b2a41"
-CYAN = "#38bdf8"
-WHITE = "#ffffff"
-YELLOW = "#ffd23f"
-GOLD = "#f2a900"
-WORDMARK = "#e0a100"
+FOREST = "#1b4d3e"
+CAR_WHITE = "#f4f6f5"
+WORDMARK = "#228b68"
 
 
 def _rounded_polygon(
@@ -80,37 +77,6 @@ def _rounded_polygon(
     return poly_pts
 
 
-def _draw_arc_ring(
-    d: ImageDraw.ImageDraw,
-    cx: float,
-    cy: float,
-    r_in: float,
-    r_out: float,
-    deg_start: float,
-    deg_end: float,
-    fill: str,
-) -> None:
-    """Draw a smooth annular sector."""
-    steps = 48
-    a0 = math.radians(deg_start)
-    a1 = math.radians(deg_end)
-    pts_out = [
-        (
-            cx + r_out * math.cos(a0 + (a1 - a0) * i / steps),
-            cy + r_out * math.sin(a0 + (a1 - a0) * i / steps),
-        )
-        for i in range(steps + 1)
-    ]
-    pts_in = [
-        (
-            cx + r_in * math.cos(a0 + (a1 - a0) * i / steps),
-            cy + r_in * math.sin(a0 + (a1 - a0) * i / steps),
-        )
-        for i in range(steps + 1)
-    ]
-    d.polygon(pts_out + list(reversed(pts_in)), fill=fill)
-
-
 def draw_icon() -> Image.Image:
     """Draw the 512px RGBA app icon."""
     s = SCALE
@@ -120,73 +86,49 @@ def draw_icon() -> Image.Image:
     def box(x0: float, y0: float, x1: float, y1: float) -> list[float]:
         return [x0 * s, y0 * s, x1 * s, y1 * s]
 
-    # 1. Dark navy rounded square background.
-    d.rounded_rectangle(box(0, 0, SIZE - 1, SIZE - 1), radius=104 * s, fill=NAVY)
+    # 1. Original deep forest-green rounded square background.
+    d.rounded_rectangle(box(0, 0, SIZE - 1, SIZE - 1), radius=104 * s, fill=FOREST)
 
-    # 2. Geometric cyan garage outer structure (pitched roof + side pillars).
-    garage_outer = [
-        (246 * s, 72 * s),
-        (424 * s, 184 * s),
-        (424 * s, 408 * s),
-        (68 * s, 408 * s),
-        (68 * s, 184 * s),
+    # 2. Classic centered side-profile vehicle silhouette in off-white.
+    # Upper greenhouse / roof arch.
+    roof_pts = [
+        (146 * s, 278 * s),
+        (188 * s, 194 * s),
+        (324 * s, 194 * s),
+        (366 * s, 278 * s),
     ]
-    d.polygon(_rounded_polygon(garage_outer, 20 * s), fill=CYAN)
+    d.polygon(
+        _rounded_polygon(roof_pts, [12 * s, 44 * s, 44 * s, 12 * s]), fill=CAR_WHITE
+    )
 
-    # Inner garage bay recess in dark navy.
-    d.rounded_rectangle(box(106, 196, 386, 412), radius=16 * s, fill=NAVY)
-
-    # Overhead roll-up door slats at the top of the bay.
-    d.rounded_rectangle(box(122, 210, 370, 224), radius=5 * s, fill=CYAN)
-
-    # 3. Front-facing modern car silhouette emerging from the garage bay.
-    # Navy knockout halo around the car cabin and fenders so it separates cleanly.
-    car_cabin_ko = [
-        (164 * s, 320 * s),
-        (190 * s, 240 * s),
-        (302 * s, 240 * s),
-        (328 * s, 320 * s),
+    # Window cutout inside the roof arch.
+    win_pts = [
+        (178 * s, 266 * s),
+        (206 * s, 214 * s),
+        (306 * s, 214 * s),
+        (334 * s, 266 * s),
     ]
-    d.polygon(_rounded_polygon(car_cabin_ko, 22 * s), fill=NAVY)
-    d.rounded_rectangle(box(114, 300, 378, 412), radius=34 * s, fill=NAVY)
+    d.polygon(_rounded_polygon(win_pts, [6 * s, 24 * s, 24 * s, 6 * s]), fill=FOREST)
 
-    # Tires (white) extending below the bumper.
-    d.rounded_rectangle(box(136, 376, 184, 438), radius=14 * s, fill=WHITE)
-    d.rounded_rectangle(box(308, 376, 356, 438), radius=14 * s, fill=WHITE)
-
-    # Car upper cabin (white) + windshield cutout (navy).
-    car_cabin = [
-        (174 * s, 326 * s),
-        (198 * s, 252 * s),
-        (294 * s, 252 * s),
-        (318 * s, 326 * s),
+    # Lower car body with softly rounded front/rear fenders.
+    body_pts = [
+        (96 * s, 344 * s),
+        (96 * s, 292 * s),
+        (134 * s, 264 * s),
+        (378 * s, 264 * s),
+        (416 * s, 292 * s),
+        (416 * s, 344 * s),
     ]
-    d.polygon(_rounded_polygon(car_cabin, 18 * s), fill=WHITE)
+    d.polygon(
+        _rounded_polygon(body_pts, [22 * s, 32 * s, 28 * s, 28 * s, 32 * s, 22 * s]),
+        fill=CAR_WHITE,
+    )
 
-    windshield = [
-        (194 * s, 316 * s),
-        (210 * s, 268 * s),
-        (282 * s, 268 * s),
-        (298 * s, 316 * s),
-    ]
-    d.polygon(_rounded_polygon(windshield, 10 * s), fill=NAVY)
-
-    # Car main lower body / bumper (white).
-    d.rounded_rectangle(box(126, 312, 366, 404), radius=28 * s, fill=WHITE)
-
-    # Golden LED headlights + central navy grille.
-    d.rounded_rectangle(box(146, 336, 192, 364), radius=12 * s, fill=GOLD)
-    d.rounded_rectangle(box(300, 336, 346, 364), radius=12 * s, fill=GOLD)
-    d.rounded_rectangle(box(208, 344, 284, 382), radius=10 * s, fill=NAVY)
-    d.rounded_rectangle(box(222, 356, 270, 370), radius=5 * s, fill=CYAN)
-
-    # 4. Golden telemetry signal arcs at the top-right above the garage roof.
-    acx, acy = 374 * s, 128 * s
-    for r_in, r_out, col in (
-        (42 * s, 56 * s, YELLOW),
-        (68 * s, 82 * s, GOLD),
-    ):
-        _draw_arc_ring(d, acx, acy, r_in, r_out, -72, 14, fill=col)
+    # Front and rear wheels (white outer ring + forest-green hub center).
+    for cx in (176, 336):
+        cy = 342
+        d.ellipse(box(cx - 34, cy - 34, cx + 34, cy + 34), fill=CAR_WHITE)
+        d.ellipse(box(cx - 14, cy - 14, cx + 14, cy + 14), fill=FOREST)
 
     return image.resize((SIZE, SIZE), Image.Resampling.LANCZOS)
 

@@ -1,12 +1,16 @@
 {
-    "domain": "garage",
-    "name": "Garage 차량관리",
-    "categories": ["vehicles_transport.cars_evs"],
-    "codeowners": ["@eigger"],
-    "config_flow": true,
-    "documentation": "https://github.com/eigger/hass-garage",
-    "iot_class": "local_polling",
-    "issue_tracker": "https://github.com/eigger/hass-garage/issues",
-    "requirements": [],
-    "version": "1.4.1",
+  "domain": "garage",
+  "name": "Garage 차량관리",
+  "categories": [
+    "vehicles_transport.cars_evs"
+  ],
+  "codeowners": [
+    "@eigger"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/eigger/hass-garage",
+  "iot_class": "local_polling",
+  "issue_tracker": "https://github.com/eigger/hass-garage/issues",
+  "requirements": [],
+  "version": "1.4.1"
 }

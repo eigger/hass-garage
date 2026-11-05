@@ -18,10 +18,10 @@
     "README.ko.md": "#설치"
   },
   "readme": {
-    "title": "Garage Home Assistant Integration (hass-garage)",
+    "title": "Garage for Home Assistant",
     "descriptions": {
       "en": "A Home Assistant custom integration for bidirectional vehicle telemetry and maintenance reminders with a self-hosted Garage vehicle management server.",
-      "ko": "셀프호스팅 Garage 차량관리 서버와 차량 텔레메트리·정비 알림을 양방향으로 연결하는 Home Assistant HACS 커스텀 통합구성요소입니다."
+      "ko": "셀프호스팅 Garage 차량 관리 서버와 차량 텔레메트리·정비 알림을 양방향으로 연동하는 Home Assistant 커스텀 통합입니다."
     },
     "issues": true,
     "discussions": true,

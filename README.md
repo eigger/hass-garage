@@ -1,5 +1,5 @@
 <!-- hass-standards:header:start -->
-# Garage Home Assistant Integration (hass-garage)
+# Garage for Home Assistant
 
 A Home Assistant custom integration for bidirectional vehicle telemetry and maintenance reminders with a self-hosted Garage vehicle management server.
 
@@ -29,7 +29,9 @@ A custom Home Assistant integration that connects a self-hosted [Garage](https:/
 
 ## Requirements
 
-Home Assistant **2025.3.0 or newer**, a reachable self-hosted [Garage](https://github.com/eigger/garage) server, and a per-vehicle API token (`Vehicle detail → OBD & GPS`). Uses local HTTP/HTTPS; no Bluetooth proxy is needed.
+- **Home Assistant:** 2025.3.0 or later.
+- **Server:** A reachable self-hosted [Garage](https://github.com/eigger/garage) server over local HTTP or HTTPS.
+- **API token:** One token per vehicle, under **Vehicle detail → OBD & GPS**.
 
 ## Installation
 
@@ -37,12 +39,16 @@ Home Assistant **2025.3.0 or newer**, a reachable self-hosted [Garage](https://g
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=eigger&repository=hass-garage&category=integration)
 <!-- hass-standards:installation:end -->
 
-1. Add `eigger/hass-garage` as a custom **Integration** repository in HACS.
-2. Install the integration and restart Home Assistant.
-3. Go to **Settings → Devices & services → Add integration → Garage 차량관리**.
-4. Enter the Garage server URL and the vehicle API token, then optionally choose HA entities to forward as telemetry.
+1. Click the badge above to open the repository in Marketplace.
+2. If you need to add it yourself, go to **Settings → Marketplace → Add from link** and enter <https://github.com/eigger/hass-garage>. Connect GitHub if prompted.
+3. Select **Install**. Restart Home Assistant if prompted, then continue to [Configuration](#configuration).
 
-Add one integration entry per vehicle. [Token lookup, entity mapping, and manual installation](docs/user-guide.md#installation)
+## Configuration
+
+1. Open **Settings → Devices & services → Add integration → Garage 차량관리**.
+2. Enter the server URL and vehicle API token. Optionally select Home Assistant entities to forward as telemetry.
+
+Add one entry per vehicle. See [token lookup and entity mapping](docs/user-guide.md#installation).
 
 ## Usage
 
@@ -60,7 +66,7 @@ Only non-location changes (RPM, speed, fuel/battery level, odometer) trigger aut
 
 | Guide | Contents |
 |---|---|
-| [User guide](docs/user-guide.md) | Setup and API token, entity mapping, debounce and ordering, pull sensors, troubleshooting, Downloads badge meaning |
+| [User guide](docs/user-guide.md) | Setup and API token, entity mapping, debounce and ordering, pull sensors, troubleshooting |
 | [Development and tests](docs/development.md) | Actual HA tests, minimum/current environments, dependencies, and commands |
 | [Adopted standards](STANDARDS.md) · [Checklist](ADOPTION_CHECKLIST.md) | Common rules and verification records |
 

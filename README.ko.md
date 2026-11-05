@@ -1,7 +1,7 @@
 <!-- hass-standards:header:start -->
-# Garage Home Assistant Integration (hass-garage)
+# Garage for Home Assistant
 
-셀프호스팅 Garage 차량관리 서버와 차량 텔레메트리·정비 알림을 양방향으로 연결하는 Home Assistant HACS 커스텀 통합구성요소입니다.
+셀프호스팅 Garage 차량 관리 서버와 차량 텔레메트리·정비 알림을 양방향으로 연동하는 Home Assistant 커스텀 통합입니다.
 
 [English](README.md) | **한국어**
 
@@ -29,7 +29,9 @@
 
 ## 요구사항
 
-Home Assistant **2025.3.0 이상**, 네트워크로 접근 가능한 셀프호스팅 [Garage](https://github.com/eigger/garage) 서버와 차량별 API 토큰(**차량 상세 → OBD & GPS**)이 필요합니다. 로컬 HTTP/HTTPS를 사용하며 Bluetooth 프록시는 필요하지 않습니다.
+- **Home Assistant:** 2025.3.0 이상.
+- **서버:** 로컬 HTTP 또는 HTTPS로 접속할 수 있는 셀프호스팅 [Garage](https://github.com/eigger/garage) 서버.
+- **API 토큰:** **차량 상세 → OBD & GPS**에서 발급한 차량별 토큰.
 
 ## 설치
 
@@ -37,12 +39,16 @@ Home Assistant **2025.3.0 이상**, 네트워크로 접근 가능한 셀프호�
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=eigger&repository=hass-garage&category=integration)
 <!-- hass-standards:installation:end -->
 
-1. HACS의 사용자 지정 저장소에 `eigger/hass-garage`를 **Integration**으로 추가합니다.
-2. 통합구성요소를 설치하고 Home Assistant를 재시작합니다.
-3. **설정 → 기기 및 서비스 → 통합구성요소 추가 → "Garage 차량관리"**를 선택합니다.
-4. Garage 서버 주소와 해당 차량의 API 토큰을 입력한 뒤, 전송할 HA 센서(선택 사항)를 고릅니다.
+1. 위 배지를 클릭해 마켓플레이스에서 저장소를 엽니다.
+2. 저장소를 직접 추가하려면 **설정 → 마켓플레이스 → 링크에서 추가**에서 <https://github.com/eigger/hass-garage>을 입력합니다. 안내가 표시되면 GitHub 계정을 연결합니다.
+3. **설치**를 선택합니다. 재시작 안내가 표시되면 Home Assistant를 재시작합니다. 설치가 끝나면 [설정](#설정)으로 이동합니다.
 
-차량 한 대당 통합구성요소 항목을 하나씩 추가합니다. [API 토큰 확인·센서 매핑·수동 설치 안내](docs/ko/user-guide.md#설치)
+## 설정
+
+1. **설정 → 기기 및 서비스 → 통합 추가 → Garage 차량관리**를 선택합니다.
+2. 서버 주소와 차량 API 토큰을 입력합니다. 필요한 경우 전송할 Home Assistant 센서를 고릅니다.
+
+차량 한 대당 통합 항목을 하나씩 추가하세요. [토큰 확인과 센서 매핑](docs/ko/user-guide.md#설치)을 참고하세요.
 
 ## 사용 예시
 
@@ -60,7 +66,7 @@ target:
 
 | 안내 | 내용 |
 |---|---|
-| [사용 안내](docs/ko/user-guide.md) | 설치·API 토큰, 센서 매핑, 디바운스·직렬화, 수신 센서, 문제 해결, Downloads 배지 의미 |
+| [사용 안내](docs/ko/user-guide.md) | 설치·API 토큰, 센서 매핑, 디바운스·직렬화, 수신 센서, 문제 해결 |
 | [개발과 테스트](docs/ko/development.md) | 실제 HA 테스트, 최소·최신 환경, 의존성과 실행 명령 |
 | [적용 기준](STANDARDS.md) · [체크리스트](ADOPTION_CHECKLIST.md) | 공통 규칙과 검증 기록 |
 

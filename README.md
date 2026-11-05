@@ -16,6 +16,8 @@ A Home Assistant custom integration for bidirectional vehicle telemetry and main
 <!-- hass-standards:badges:end -->
 <!-- hass-standards:header:end -->
 
+![Garage](custom_components/garage/brand/logo.png)
+
 A custom Home Assistant integration that connects a self-hosted [Garage](https://github.com/eigger/garage) vehicle management server with Home Assistant in **both directions without YAML configuration**.
 
 

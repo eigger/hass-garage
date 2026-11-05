@@ -16,6 +16,8 @@
 <!-- hass-standards:badges:end -->
 <!-- hass-standards:header:end -->
 
+![Garage](custom_components/garage/brand/logo.png)
+
 셀프호스팅 차량관리 서버 [Garage](https://github.com/eigger/garage)와 Home Assistant를 **YAML 편집 없이** 양방향으로 연결하는 커스텀 통합구성요소입니다.
 
 
